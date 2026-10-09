@@ -1,0 +1,12 @@
+# Runtime
+fastapi==0.143.0
+uvicorn[standard]==0.54.0
+sqlalchemy[asyncio]==2.1.4
+greenlet==3.5.6
+asyncpg==0.32.0
+alembic==1.20.0
+pydantic-settings==2.15.0
+
+# Tests (needed for `pytest`; httpx is required by FastAPI's TestClient)
+pytest==9.1.1
+httpx==0.28.1
