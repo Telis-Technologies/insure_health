@@ -1,0 +1,18 @@
+{
+  "status": "BLOCKED",
+  "decisions": [
+    "D04",
+    "D07"
+  ],
+  "data_mode": "SYNTHETIC_INPUT",
+  "member_fixture": "REFERENCE-CASE-001",
+  "recipient": null,
+  "purpose": null,
+  "allowed_fields": null,
+  "history_records": null,
+  "grant_actor": null,
+  "grant_expiry": null,
+  "withdrawal_behavior": null,
+  "approved_by": null,
+  "note": "Do not infer clinical results, allergies or additional history from the MRI service."
+}

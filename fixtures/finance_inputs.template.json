@@ -1,0 +1,15 @@
+{
+  "status": "BLOCKED",
+  "decision": "D08",
+  "data_mode": "SYNTHETIC_INPUT",
+  "cohort": null,
+  "period_start": null,
+  "period_end": null,
+  "gross_or_net": null,
+  "earned_premium_kes": null,
+  "incurred_losses_kes": null,
+  "reserve_components": null,
+  "source_as_of": null,
+  "approved_by": null,
+  "note": "No numeric loss ratio until team supplies approved inputs and definition. Null is unknown, not zero."
+}

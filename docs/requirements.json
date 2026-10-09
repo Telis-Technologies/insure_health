@@ -1,0 +1,387 @@
+[
+  {
+    "id": "BR01",
+    "title": "Demonstrate the complete strategy",
+    "requirement": "The demonstration shall cover all five parts in the final strategy.",
+    "acceptance": "Every part has an observable walkthrough and an honest capability label.",
+    "decision_dependencies": [],
+    "basis": "CONFIRMED_SCOPE_OR_STRATEGY"
+  },
+  {
+    "id": "BR02",
+    "title": "Explain claim corrections",
+    "requirement": "A reviewer shall trace a finding from a submitted bill line to a contract or authorization rule, evidence, decision and settlement.",
+    "acceptance": "Case 001 shows its five flagged lines and KES 6,400 correction without duplicate deductions.",
+    "decision_dependencies": [],
+    "basis": "CONFIRMED_SCOPE_OR_STRATEGY"
+  },
+  {
+    "id": "BR03",
+    "title": "Represent all core stakeholders",
+    "requirement": "The workflow shall show insurer or TPA review, provider correction, and patient control of history sharing.",
+    "acceptance": "The walkthrough identifies each actor and the action recorded for that actor.",
+    "decision_dependencies": [],
+    "basis": "CONFIRMED_SCOPE_OR_STRATEGY"
+  },
+  {
+    "id": "BR04",
+    "title": "Keep reported benefits supportable",
+    "requirement": "The pitch shall distinguish synthetic calculations, suspected discrepancies and measured real outcomes.",
+    "acceptance": "No invented customer, fraud detection rate, savings, loss ratio or regulator endorsement is presented.",
+    "decision_dependencies": [],
+    "basis": "CONFIRMED_SCOPE_OR_STRATEGY"
+  },
+  {
+    "id": "BR05",
+    "title": "Make the build reproducible",
+    "requirement": "The team shall have traceable requirements, tasks, decisions and acceptance evidence.",
+    "acceptance": "An agent can identify its task, dependency, unresolved question and completion test.",
+    "decision_dependencies": [],
+    "basis": "CONFIRMED_SCOPE_OR_STRATEGY"
+  },
+  {
+    "id": "FR01",
+    "title": "Capability truthfulness",
+    "requirement": "Each user-visible feature shall disclose working behavior, synthetic input, mocked integration or unavailable capability as applicable.",
+    "acceptance": "The demo and pitch use matching labels; mocks are not counted as live integrations.",
+    "decision_dependencies": [
+      "D02"
+    ],
+    "basis": "CONFIRMED_SCOPE_OR_STRATEGY"
+  },
+  {
+    "id": "FR02",
+    "title": "Data provenance",
+    "requirement": "Financial and clinical inputs shall retain source, input mode and version. Missing required inputs shall remain unknown and block the dependent result.",
+    "acceptance": "No field is filled with an invented premium, history entry or national ID; unknown loss ratio is unavailable.",
+    "decision_dependencies": [
+      "D05",
+      "D07",
+      "D08"
+    ],
+    "basis": "CONFIRMED_SCOPE_OR_STRATEGY"
+  },
+  {
+    "id": "FR03",
+    "title": "Reference fixture isolation",
+    "requirement": "Case 001 terms shall be attached to its policy and contract fixture.",
+    "acceptance": "Another policy is not assigned 10% coinsurance or a KES 100,000 limit by default.",
+    "decision_dependencies": [],
+    "basis": "REFERENCE_ONLY"
+  },
+  {
+    "id": "FR04",
+    "title": "Claim intake",
+    "requirement": "An authorized provider user shall create a structured draft claim against an identifiable member, policy, provider and encounter. Required fields and coding are defined by the approved schema.",
+    "acceptance": "Incomplete drafts may be saved if the schema permits; submission rejects missing required fields and identifies each missing field.",
+    "decision_dependencies": [
+      "D04",
+      "D05"
+    ],
+    "basis": "PROPOSED_DETAIL"
+  },
+  {
+    "id": "FR05",
+    "title": "Submission versions",
+    "requirement": "Submitting a claim shall preserve the bill lines and source references as an immutable version. Provider correction shall create a linked new version.",
+    "acceptance": "The original KES 36,100 bill remains inspectable after the KES 29,700 corrected version is submitted.",
+    "decision_dependencies": [
+      "D03"
+    ],
+    "basis": "CONFIRMED_SCOPE_OR_STRATEGY"
+  },
+  {
+    "id": "FR06",
+    "title": "Authorization evidence",
+    "requirement": "The claim shall link the named service, authorization validity and ceiling without treating authorization as blanket payment approval.",
+    "acceptance": "Case 001 links AUTH-001 to MRI brain without contrast on 22 September 2026 and applies its KES 25,000 ceiling.",
+    "decision_dependencies": [],
+    "basis": "REFERENCE_ONLY"
+  },
+  {
+    "id": "FR07",
+    "title": "Preauthorization creation",
+    "requirement": "If D02 includes creation, an authorized user shall submit an explicit service request and a designated reviewer shall record approval or clarification with evidence.",
+    "acceptance": "The request and resulting authorization are distinct records; no automatic clinical approval or default ceiling.",
+    "decision_dependencies": [
+      "D02",
+      "D04",
+      "D05"
+    ],
+    "basis": "PROPOSED_DETAIL"
+  },
+  {
+    "id": "FR08",
+    "title": "Evidence retrieval",
+    "requirement": "Access to original bills, contracts, authorizations and clinical documents shall be checked by the API or document gateway.",
+    "acceptance": "A user outside the agreed organization or purpose cannot retrieve a document by guessing its URL.",
+    "decision_dependencies": [
+      "D04",
+      "D10"
+    ],
+    "basis": "CONFIRMED_SCOPE_OR_STRATEGY"
+  },
+  {
+    "id": "FR09",
+    "title": "Extraction mode",
+    "requirement": "If OCR is selected, extracted values shall be staged with source references and require the agreed verification process before financial assessment.",
+    "acceptance": "Wrong extracted quantities or amounts can be corrected; a mocked extractor is labelled and never reported as OCR accuracy.",
+    "decision_dependencies": [
+      "D02",
+      "D10"
+    ],
+    "basis": "PROPOSED_DETAIL"
+  },
+  {
+    "id": "FR10",
+    "title": "Submission channels",
+    "requirement": "Any enabled channel shall map into the same approved claim schema and preserve source/provenance.",
+    "acceptance": "WhatsApp, USSD and biometric sign-off remain unavailable until D02 D10 select a mode and authorized contract.",
+    "decision_dependencies": [
+      "D02",
+      "D10"
+    ],
+    "basis": "PROPOSED_DETAIL"
+  },
+  {
+    "id": "FR11",
+    "title": "Versioned assessment",
+    "requirement": "A validation run shall identify the claim, policy, contract and rule versions used, and retain findings after later configuration changes.",
+    "acceptance": "Updating a tariff does not silently rewrite a previous run; revalidation creates a new run.",
+    "decision_dependencies": [
+      "D03"
+    ],
+    "basis": "CONFIRMED_SCOPE_OR_STRATEGY"
+  },
+  {
+    "id": "FR12",
+    "title": "Explainable rules",
+    "requirement": "Each finding shall state affected line, rule identifier, source evidence, observed value and proposed treatment.",
+    "acceptance": "Case 001 identifies L01 500, L02 300, L03 3000, L05 1800 and L06 800 in KES corrections.",
+    "decision_dependencies": [],
+    "basis": "REFERENCE_ONLY"
+  },
+  {
+    "id": "FR13",
+    "title": "Correction deduplication",
+    "requirement": "Calculation shall resolve overlapping adjustments explicitly rather than summing every flagged rule.",
+    "acceptance": "The MRI correction is KES 3,000 once. The removed duplicate CBC receives no second tariff correction.",
+    "decision_dependencies": [],
+    "basis": "REFERENCE_ONLY"
+  },
+  {
+    "id": "FR14",
+    "title": "Human review",
+    "requirement": "A finding shall not automatically establish fraud or trigger an unreviewed denial. Review decisions shall identify actor and reason.",
+    "acceptance": "An unresolved or clarification finding cannot be approved through the normal path. Overrides require the agreed authority, justification and recalculation.",
+    "decision_dependencies": [
+      "D04",
+      "D06"
+    ],
+    "basis": "CONFIRMED_SCOPE_OR_STRATEGY"
+  },
+  {
+    "id": "FR15",
+    "title": "Provider correction loop",
+    "requirement": "The reviewer shall issue a correction or evidence request; the provider shall correct or dispute it; the reviewer shall evaluate the response.",
+    "acceptance": "Correction request, original version, corrected version and final decision remain linked. A UI confirmation alone is not provider evidence.",
+    "decision_dependencies": [
+      "D04",
+      "D05"
+    ],
+    "basis": "CONFIRMED_SCOPE_OR_STRATEGY"
+  },
+  {
+    "id": "FR16",
+    "title": "Anomaly behavior",
+    "requirement": "The selected anomaly method shall output an explanation and provenance separately from deterministic contractual corrections.",
+    "acceptance": "Legitimate repeat services are reviewable. No unexplained score, assumed threshold, fabricated model output or automatic denial.",
+    "decision_dependencies": [
+      "D09"
+    ],
+    "basis": "PROPOSED_DETAIL"
+  },
+  {
+    "id": "FR17",
+    "title": "Reference calculation",
+    "requirement": "The Case 001 calculation shall return billed 36100, correction 6400, eligible 29700, member share 2970 and insurer share 26730, all KES.",
+    "acceptance": "Stored and API-returned totals match those amounts; the frontend displays authoritative totals.",
+    "decision_dependencies": [],
+    "basis": "REFERENCE_ONLY"
+  },
+  {
+    "id": "FR18",
+    "title": "General financial calculation",
+    "requirement": "A policy-specific configuration shall define any deductible, coinsurance, limit, exclusion, rounding and responsibility rule. Missing configuration shall block calculation.",
+    "acceptance": "No general claim inherits Case 001 values; the calculation reports a missing-config state.",
+    "decision_dependencies": [
+      "D06"
+    ],
+    "basis": "PROPOSED_DETAIL"
+  },
+  {
+    "id": "FR19",
+    "title": "Benefit ledger",
+    "requirement": "Benefit entries shall represent reservation, consumption, release and reversal according to the approved accounting point.",
+    "acceptance": "Two claims cannot spend the same availability. Case 001 leaves KES 55,270 after posting KES 26,730; conversion of a reservation to use does not deduct twice.",
+    "decision_dependencies": [
+      "D06"
+    ],
+    "basis": "PROPOSED_DETAIL"
+  },
+  {
+    "id": "FR20",
+    "title": "Atomic approval",
+    "requirement": "Approval shall record the approved version, required benefit action and audit event as one consistent database operation.",
+    "acceptance": "A failing operation leaves no approved claim without its required financial record; a stale version is rejected.",
+    "decision_dependencies": [
+      "D03",
+      "D06"
+    ],
+    "basis": "PROPOSED_DETAIL"
+  },
+  {
+    "id": "FR21",
+    "title": "Simulated payments",
+    "requirement": "The week shall record simulated payments without sending funds. Payment reference and allocations shall identify the intended payable.",
+    "acceptance": "Case 001 records KES 26,730 and visibly states simulation; no payment gateway or bank transfer is executed.",
+    "decision_dependencies": [],
+    "basis": "CONFIRMED_SCOPE_OR_STRATEGY"
+  },
+  {
+    "id": "FR22",
+    "title": "Reconciliation",
+    "requirement": "Receipt matching shall distinguish approved payable, paid amount, matched amount and unresolved variance.",
+    "acceptance": "An exact KES 26,730 match yields KES 0 variance. A partial or mismatched receipt cannot appear fully reconciled.",
+    "decision_dependencies": [
+      "D06"
+    ],
+    "basis": "PROPOSED_DETAIL"
+  },
+  {
+    "id": "FR23",
+    "title": "Idempotency and reversals",
+    "requirement": "Repeated submit/approve/payment requests shall not duplicate versions or financial effects; reversals shall be separate linked entries.",
+    "acceptance": "A retried approved command returns the agreed existing result or conflict; no second payment is created. Partial-payment and reversal rules are selected in D06.",
+    "decision_dependencies": [
+      "D03",
+      "D06"
+    ],
+    "basis": "PROPOSED_DETAIL"
+  },
+  {
+    "id": "FR24",
+    "title": "Purpose scoped history",
+    "requirement": "A history request shall identify member, recipient, purpose and requested scope. Claims access shall not automatically authorize care or underwriting-history sharing.",
+    "acceptance": "An unauthorized recipient cannot retrieve history by calling the API directly.",
+    "decision_dependencies": [
+      "D04",
+      "D07"
+    ],
+    "basis": "CONFIRMED_SCOPE_OR_STRATEGY"
+  },
+  {
+    "id": "FR25",
+    "title": "Grant and withdrawal",
+    "requirement": "The selected consent mechanism shall record an authenticated member action or explicitly identified demonstration simulation, scope, expiry and withdrawal.",
+    "acceptance": "Approved synthetic access succeeds before withdrawal; subsequent access is denied according to the selected policy. Retention behavior is explicit.",
+    "decision_dependencies": [
+      "D04",
+      "D07"
+    ],
+    "basis": "PROPOSED_DETAIL"
+  },
+  {
+    "id": "FR26",
+    "title": "Operational reports",
+    "requirement": "Reports shall use defined claim statuses and versions, avoid double-counting corrections, and show period, filters, mode and last-updated timestamp.",
+    "acceptance": "Changing a submitted version does not create two claims in the claim count; proposed and approved corrections are separate.",
+    "decision_dependencies": [
+      "D03",
+      "D08"
+    ],
+    "basis": "PROPOSED_DETAIL"
+  },
+  {
+    "id": "FR27",
+    "title": "Loss ratio inputs",
+    "requirement": "A loss ratio shall use approved aligned incurred-loss and earned-premium inputs, cohort, period and gross/net definition. Unknown or zero-denominator states shall be explicit.",
+    "acceptance": "No benefit-limit substitution; no made-up premium or reserve; no numerical ratio when input requirements are unmet.",
+    "decision_dependencies": [
+      "D08"
+    ],
+    "basis": "CONFIRMED_SCOPE_OR_STRATEGY"
+  },
+  {
+    "id": "FR28",
+    "title": "Segmented reporting",
+    "requirement": "Hospital, diagnosis and procedure views shall use an approved metric definition and expose input coverage.",
+    "acceptance": "A provider-cost chart is not labelled provider loss ratio unless an agreed premium-allocation method exists.",
+    "decision_dependencies": [
+      "D08"
+    ],
+    "basis": "PROPOSED_DETAIL"
+  },
+  {
+    "id": "NF01",
+    "title": "Server enforced access",
+    "requirement": "All APIs, lists, exports and document reads shall enforce the selected role and organization/purpose boundaries.",
+    "acceptance": "Cross-organization and revoked-grant API tests fail closed; role labels in the UI cannot bypass checks.",
+    "decision_dependencies": [
+      "D04"
+    ],
+    "basis": "PROPOSED_DETAIL"
+  },
+  {
+    "id": "NF02",
+    "title": "Secrets and data discipline",
+    "requirement": "The build shall keep secrets outside source control and use synthetic fixtures only. Logs and error traces shall not expose documents, credentials or unnecessary clinical content.",
+    "acceptance": "Repository and logging review show no secrets or real patient data; deployment values are provided explicitly.",
+    "decision_dependencies": [
+      "D11"
+    ],
+    "basis": "CONFIRMED_SCOPE_OR_STRATEGY"
+  },
+  {
+    "id": "NF03",
+    "title": "Audit and immutability",
+    "requirement": "Published claim versions, assessments, decisions and financial entries shall remain attributable; correction is a new record.",
+    "acceptance": "Audit identifies actor/time/version/reason and no ordinary UI/API can silently rewrite submitted evidence.",
+    "decision_dependencies": [
+      "D03",
+      "D04"
+    ],
+    "basis": "PROPOSED_DETAIL"
+  },
+  {
+    "id": "NF04",
+    "title": "User states",
+    "requirement": "Screens shall handle loading, empty results, unavailable inputs, invalid forms, permission denial, conflict and success without hiding failed operations.",
+    "acceptance": "A failed API request does not become a success toast or a fake local result.",
+    "decision_dependencies": [
+      "D03"
+    ],
+    "basis": "PROPOSED_DETAIL"
+  },
+  {
+    "id": "NF05",
+    "title": "Reproducible delivery",
+    "requirement": "The repository shall document setup, migrations, approved fixtures, configuration, tests, reset/reseed procedure and known limitations.",
+    "acceptance": "Another team member can start the build and run the agreed acceptance commands without hidden local state.",
+    "decision_dependencies": [
+      "D03",
+      "D11"
+    ],
+    "basis": "PROPOSED_DETAIL"
+  },
+  {
+    "id": "NF06",
+    "title": "Performance and recovery",
+    "requirement": "Agreed browser, viewport, load, response-time, backup and recovery targets shall be documented and tested at the chosen demonstration or pilot level.",
+    "acceptance": "D12 supplies targets; no invented latency, concurrency, uptime, RPO or RTO claim appears in the pitch.",
+    "decision_dependencies": [
+      "D12"
+    ],
+    "basis": "PROPOSED_DETAIL"
+  }
+]

@@ -1,0 +1,142 @@
+[
+  {
+    "id": "AT01",
+    "requirements": [
+      "FR05",
+      "FR12",
+      "FR13",
+      "FR17"
+    ],
+    "scenario": "Case 001",
+    "expected_evidence": "Six original lines; five flagged lines; correction 6400; eligible 29700; member 2970; insurer 26730.",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT02",
+    "requirements": [
+      "FR05",
+      "FR15"
+    ],
+    "scenario": "Corrected submission",
+    "expected_evidence": "Original and revised evidence/version remain available; revalidation targets the corrected version.",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT03",
+    "requirements": [
+      "FR14",
+      "FR20"
+    ],
+    "scenario": "Unresolved findings",
+    "expected_evidence": "Normal approval is rejected while required findings or correction evidence remain unresolved.",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT04",
+    "requirements": [
+      "FR11",
+      "FR20"
+    ],
+    "scenario": "Stale run",
+    "expected_evidence": "Changing the submitted version makes the old assessment ineligible for approval.",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT05",
+    "requirements": [
+      "FR19",
+      "FR20"
+    ],
+    "scenario": "Concurrent claims",
+    "expected_evidence": "Available benefit cannot be consumed twice; Case 001 posting leaves 55270.",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT06",
+    "requirements": [
+      "FR21",
+      "FR23"
+    ],
+    "scenario": "Payment retry",
+    "expected_evidence": "Repeated source reference/idempotency key cannot create a second payment.",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT07",
+    "requirements": [
+      "FR22"
+    ],
+    "scenario": "Receipt match",
+    "expected_evidence": "Exact insurer-share receipt yields variance zero; mismatched/partial receipt stays unresolved.",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT08",
+    "requirements": [
+      "FR03",
+      "FR18"
+    ],
+    "scenario": "Unknown policy config",
+    "expected_evidence": "A different policy does not inherit the reference limit, 10% share or exclusion assumptions.",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT09",
+    "requirements": [
+      "FR24",
+      "FR25",
+      "NF01"
+    ],
+    "scenario": "History access",
+    "expected_evidence": "Authorized synthetic grant permits selected scope; wrong recipient and withdrawn grant fail.",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT10",
+    "requirements": [
+      "FR27",
+      "FR28"
+    ],
+    "scenario": "Finance inputs",
+    "expected_evidence": "No ratio with missing inputs or zero earned premium; approved synthetic inputs calculate reproducibly.",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT11",
+    "requirements": [
+      "FR16"
+    ],
+    "scenario": "Repeat procedure",
+    "expected_evidence": "A legitimate repeat case is not automatically denied or labelled proven fraud.",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT12",
+    "requirements": [
+      "FR08",
+      "NF01"
+    ],
+    "scenario": "Organization boundaries",
+    "expected_evidence": "Unauthorized users cannot list another organization claim or retrieve its document by ID.",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT13",
+    "requirements": [
+      "FR01",
+      "NF04"
+    ],
+    "scenario": "Demo disclosure",
+    "expected_evidence": "Every mock and synthetic input is visible; API failure is not replaced by invented success.",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT14",
+    "requirements": [
+      "NF05"
+    ],
+    "scenario": "Fresh setup",
+    "expected_evidence": "Approved migrations and seed/reset steps reproduce the reference case and agreed tests.",
+    "status": "NOT_RUN"
+  }
+]

@@ -1,0 +1,58 @@
+[
+  {
+    "id": "C01",
+    "status": "CONFIRMED",
+    "subject": "Duration",
+    "value": "One week",
+    "source": "User correction on 9 October 2026"
+  },
+  {
+    "id": "C02",
+    "status": "CONFIRMED",
+    "subject": "Outcome",
+    "value": "Full strategy demonstration",
+    "source": "User scope selection on 9 October 2026"
+  },
+  {
+    "id": "C03",
+    "status": "CONFIRMED",
+    "subject": "Stack",
+    "value": "Next.js with TypeScript, FastAPI and PostgreSQL",
+    "source": "User stack confirmation on 9 October 2026"
+  },
+  {
+    "id": "C04",
+    "status": "CONFIRMED",
+    "subject": "Frontend",
+    "value": "Ingrid and Lameck",
+    "source": "User team allocation"
+  },
+  {
+    "id": "C05",
+    "status": "CONFIRMED",
+    "subject": "Backend",
+    "value": "Tristan/Brian and Obunde; Tristan/Brian is one person or alias",
+    "source": "User team allocation and clarification"
+  },
+  {
+    "id": "C06",
+    "status": "CONFIRMED",
+    "subject": "Documentation",
+    "value": "Silas handles documentation, presentation and other supporting tasks",
+    "source": "User team allocation"
+  },
+  {
+    "id": "C07",
+    "status": "STRATEGY_BASELINE",
+    "subject": "Data",
+    "value": "Synthetic data until a pilot agreement and data protection review exist",
+    "source": "Final strategy page 1"
+  },
+  {
+    "id": "C08",
+    "status": "REFERENCE_ONLY",
+    "subject": "Claim fixture",
+    "value": "Reference Case 001 and its amounts are fictional demonstration facts",
+    "source": "Established case and final strategy page 1"
+  }
+]

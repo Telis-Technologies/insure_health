@@ -1,0 +1,103 @@
+{
+  "fixture_id": "REFERENCE-CASE-001",
+  "status": "REFERENCE_ONLY",
+  "data_mode": "SYNTHETIC_INPUT",
+  "member": {
+    "name": "Daniel Mwangi",
+    "date_of_birth": null,
+    "email": null,
+    "national_id": null
+  },
+  "insurer": "Harbor Health Assurance",
+  "provider": "Riverside Medical Centre",
+  "tpa": "MediBridge Administrators",
+  "policy": {
+    "id": "POL-2026-001",
+    "outpatient_limit_kes": "100000.00",
+    "prior_use_kes": "18000.00",
+    "member_coinsurance": "0.10",
+    "consumption_basis": "insurer_share_for_this_fixture_only",
+    "earned_premium_kes": null
+  },
+  "contract": {
+    "id": "CON-2026-017",
+    "provider_absorbs_corrections": true
+  },
+  "authorization": {
+    "id": "AUTH-001",
+    "service": "MRI brain without contrast",
+    "ceiling_kes": "25000.00",
+    "valid_service_date": "2026-09-22"
+  },
+  "encounter": {
+    "date": "2026-09-22",
+    "context": "Persistent headaches with new neurological symptoms",
+    "clinical_result": null
+  },
+  "lines": [
+    {
+      "line_id": "L01",
+      "description": "Consultation",
+      "billed_kes": "2500.00",
+      "correction_kes": "500.00",
+      "eligible_kes": "2000.00"
+    },
+    {
+      "line_id": "L02",
+      "description": "CBC",
+      "billed_kes": "1800.00",
+      "correction_kes": "300.00",
+      "eligible_kes": "1500.00"
+    },
+    {
+      "line_id": "L03",
+      "description": "MRI brain without contrast",
+      "billed_kes": "28000.00",
+      "correction_kes": "3000.00",
+      "eligible_kes": "25000.00"
+    },
+    {
+      "line_id": "L04",
+      "description": "Medication",
+      "billed_kes": "1200.00",
+      "correction_kes": "0.00",
+      "eligible_kes": "1200.00"
+    },
+    {
+      "line_id": "L05",
+      "description": "Duplicate CBC",
+      "billed_kes": "1800.00",
+      "correction_kes": "1800.00",
+      "eligible_kes": "0.00"
+    },
+    {
+      "line_id": "L06",
+      "description": "Administration fee",
+      "billed_kes": "800.00",
+      "correction_kes": "800.00",
+      "eligible_kes": "0.00"
+    }
+  ],
+  "expected": {
+    "billed_kes": "36100.00",
+    "correction_kes": "6400.00",
+    "eligible_kes": "29700.00",
+    "member_share_kes": "2970.00",
+    "insurer_share_kes": "26730.00",
+    "remaining_benefit_kes": "55270.00",
+    "reconciliation_variance_kes": "0.00"
+  },
+  "fixture_dates": {
+    "submitted": "2026-09-23",
+    "corrected": "2026-09-24",
+    "adjudicated": "2026-09-25",
+    "simulated_payment": "2026-10-02"
+  },
+  "anti_assumption_notes": [
+    "Amounts are fixture facts, not general policy defaults.",
+    "Do not treat benefit limit as premium.",
+    "Do not invent unknown patient fields or clinical outcomes.",
+    "MRI correction counted once; removed CBC receives no tariff deduction.",
+    "Payment reference is entered explicitly or approved in a fixture decision, not invented."
+  ]
+}

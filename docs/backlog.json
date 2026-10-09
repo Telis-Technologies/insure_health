@@ -1,0 +1,834 @@
+[
+  {
+    "id": "T01",
+    "owner": "Silas",
+    "title": "Confirm week calendar scope and acceptance",
+    "requirement_ids": [
+      "BR01",
+      "BR05",
+      "FR01"
+    ],
+    "task_dependencies": [],
+    "decision_dependencies": [
+      "D01",
+      "D02",
+      "D12"
+    ],
+    "target_days": [
+      "D1"
+    ],
+    "completion_evidence": "Record exact answers and all five capability modes; keep unresolved items OPEN.",
+    "status": "PLANNED",
+    "assignment_status": "ASSIGNED_IN_THIS_PLAN"
+  },
+  {
+    "id": "T02",
+    "owner": "Tristan/Brian",
+    "title": "Prepare ERD workflow and reference rules",
+    "requirement_ids": [
+      "FR03",
+      "FR05",
+      "FR11",
+      "FR17"
+    ],
+    "task_dependencies": [],
+    "decision_dependencies": [
+      "D03",
+      "D05",
+      "D06"
+    ],
+    "target_days": [
+      "D1"
+    ],
+    "completion_evidence": "Reviewed schema/state transitions; Case 001 mapping; decisions linked.",
+    "status": "PLANNED",
+    "assignment_status": "ASSIGNED_IN_THIS_PLAN"
+  },
+  {
+    "id": "T03",
+    "owner": "Tristan/Brian",
+    "title": "Freeze shared API contract with frontend owners",
+    "requirement_ids": [
+      "FR04",
+      "FR05",
+      "FR14",
+      "FR21",
+      "FR24",
+      "FR27"
+    ],
+    "task_dependencies": [
+      "T02"
+    ],
+    "decision_dependencies": [
+      "D03",
+      "D04",
+      "D05",
+      "D06",
+      "D07",
+      "D08"
+    ],
+    "target_days": [
+      "D1",
+      "D2"
+    ],
+    "completion_evidence": "Versioned OpenAPI; examples only from approved fixtures; error/nullable/idempotency semantics.",
+    "status": "PLANNED",
+    "assignment_status": "ASSIGNED_IN_THIS_PLAN"
+  },
+  {
+    "id": "T04",
+    "owner": "Obunde",
+    "title": "Set up backend database migrations and environment",
+    "requirement_ids": [
+      "NF02",
+      "NF05"
+    ],
+    "task_dependencies": [],
+    "decision_dependencies": [
+      "D03",
+      "D11"
+    ],
+    "target_days": [
+      "D1",
+      "D2"
+    ],
+    "completion_evidence": "FastAPI health route; PostgreSQL connection; first migration; secret-free setup instructions.",
+    "status": "PLANNED",
+    "assignment_status": "ASSIGNED_IN_THIS_PLAN"
+  },
+  {
+    "id": "T05",
+    "owner": "Lameck",
+    "title": "Set up Next.js shell and shared API client",
+    "requirement_ids": [
+      "FR01",
+      "NF04",
+      "NF05"
+    ],
+    "task_dependencies": [],
+    "decision_dependencies": [
+      "D03",
+      "D11"
+    ],
+    "target_days": [
+      "D1",
+      "D2"
+    ],
+    "completion_evidence": "Existing five-screen navigation represented in Next.js; approved client/error contracts; feature disclosure.",
+    "status": "PLANNED",
+    "assignment_status": "ASSIGNED_IN_THIS_PLAN"
+  },
+  {
+    "id": "T06",
+    "owner": "Obunde",
+    "title": "Implement agreed authentication and access checks",
+    "requirement_ids": [
+      "NF01",
+      "FR08",
+      "FR24"
+    ],
+    "task_dependencies": [
+      "T04"
+    ],
+    "decision_dependencies": [
+      "D04"
+    ],
+    "target_days": [
+      "D2"
+    ],
+    "completion_evidence": "Tested users/organization delegation; no role-picker bypass; list and document access controls.",
+    "status": "PLANNED",
+    "assignment_status": "ASSIGNED_IN_THIS_PLAN"
+  },
+  {
+    "id": "T07",
+    "owner": "Tristan/Brian",
+    "title": "Implement policy contract authorization and Case 001 seed",
+    "requirement_ids": [
+      "FR03",
+      "FR06",
+      "FR12",
+      "FR17"
+    ],
+    "task_dependencies": [
+      "T04",
+      "T02"
+    ],
+    "decision_dependencies": [
+      "D03",
+      "D05"
+    ],
+    "target_days": [
+      "D2"
+    ],
+    "completion_evidence": "Versioned reference records reproduce known fixture; missing attributes stay unset.",
+    "status": "PLANNED",
+    "assignment_status": "ASSIGNED_IN_THIS_PLAN"
+  },
+  {
+    "id": "T08",
+    "owner": "Tristan/Brian",
+    "title": "Implement claim drafts versions submission and evidence links",
+    "requirement_ids": [
+      "FR04",
+      "FR05",
+      "FR08"
+    ],
+    "task_dependencies": [
+      "T03",
+      "T06",
+      "T07"
+    ],
+    "decision_dependencies": [
+      "D05",
+      "D10"
+    ],
+    "target_days": [
+      "D2",
+      "D3"
+    ],
+    "completion_evidence": "Draft/submission APIs; immutable originals; approved uploads/storage; ownership checks.",
+    "status": "PLANNED",
+    "assignment_status": "ASSIGNED_IN_THIS_PLAN"
+  },
+  {
+    "id": "T09",
+    "owner": "Ingrid",
+    "title": "Build intake claim detail and authorization views",
+    "requirement_ids": [
+      "FR04",
+      "FR05",
+      "FR06",
+      "FR07",
+      "FR08"
+    ],
+    "task_dependencies": [
+      "T05",
+      "T03"
+    ],
+    "decision_dependencies": [
+      "D02",
+      "D04",
+      "D05",
+      "D10"
+    ],
+    "target_days": [
+      "D2",
+      "D3"
+    ],
+    "completion_evidence": "Forms use approved required fields; errors shown; original bill/auth evidence visible; optional creation follows D02.",
+    "status": "PLANNED",
+    "assignment_status": "ASSIGNED_IN_THIS_PLAN"
+  },
+  {
+    "id": "T10",
+    "owner": "Lameck",
+    "title": "Build dashboard queue and claim navigation",
+    "requirement_ids": [
+      "FR01",
+      "FR26",
+      "NF04"
+    ],
+    "task_dependencies": [
+      "T05",
+      "T03"
+    ],
+    "decision_dependencies": [
+      "D03",
+      "D08"
+    ],
+    "target_days": [
+      "D2",
+      "D3"
+    ],
+    "completion_evidence": "Real API list/filter states; no frontend fabricated totals; reference claim opens.",
+    "status": "PLANNED",
+    "assignment_status": "ASSIGNED_IN_THIS_PLAN"
+  },
+  {
+    "id": "T11",
+    "owner": "Tristan/Brian",
+    "title": "Implement versioned rule assessment",
+    "requirement_ids": [
+      "FR11",
+      "FR12",
+      "FR13",
+      "FR16"
+    ],
+    "task_dependencies": [
+      "T07",
+      "T08"
+    ],
+    "decision_dependencies": [
+      "D03",
+      "D06",
+      "D09"
+    ],
+    "target_days": [
+      "D3"
+    ],
+    "completion_evidence": "Case 001 five findings; overlap resolution; immutable validation runs; chosen anomaly mode disclosed.",
+    "status": "PLANNED",
+    "assignment_status": "ASSIGNED_IN_THIS_PLAN"
+  },
+  {
+    "id": "T12",
+    "owner": "Lameck",
+    "title": "Build validation and reviewer workbench",
+    "requirement_ids": [
+      "FR12",
+      "FR14",
+      "FR16",
+      "NF04"
+    ],
+    "task_dependencies": [
+      "T05",
+      "T03",
+      "T11"
+    ],
+    "decision_dependencies": [
+      "D04",
+      "D06",
+      "D09"
+    ],
+    "target_days": [
+      "D3",
+      "D4"
+    ],
+    "completion_evidence": "Evidence and rule explanations; decisions/reasons; blocked approval and stale-run messages.",
+    "status": "PLANNED",
+    "assignment_status": "ASSIGNED_IN_THIS_PLAN"
+  },
+  {
+    "id": "T13",
+    "owner": "Tristan/Brian",
+    "title": "Implement correction requests provider responses and adjudication",
+    "requirement_ids": [
+      "FR05",
+      "FR14",
+      "FR15",
+      "FR20"
+    ],
+    "task_dependencies": [
+      "T08",
+      "T11"
+    ],
+    "decision_dependencies": [
+      "D04",
+      "D05",
+      "D06"
+    ],
+    "target_days": [
+      "D3",
+      "D4"
+    ],
+    "completion_evidence": "Corrected version revalidated; disputes recorded; approval binds exact version and evidence.",
+    "status": "PLANNED",
+    "assignment_status": "ASSIGNED_IN_THIS_PLAN"
+  },
+  {
+    "id": "T14",
+    "owner": "Ingrid",
+    "title": "Build provider correction submission and response views",
+    "requirement_ids": [
+      "FR05",
+      "FR15"
+    ],
+    "task_dependencies": [
+      "T09",
+      "T13"
+    ],
+    "decision_dependencies": [
+      "D04",
+      "D05"
+    ],
+    "target_days": [
+      "D3",
+      "D4"
+    ],
+    "completion_evidence": "Provider can view requested lines/evidence and resubmit; original remains available.",
+    "status": "PLANNED",
+    "assignment_status": "ASSIGNED_IN_THIS_PLAN"
+  },
+  {
+    "id": "T15",
+    "owner": "Obunde",
+    "title": "Implement settlement benefit ledger and payment reconciliation",
+    "requirement_ids": [
+      "FR17",
+      "FR18",
+      "FR19",
+      "FR20",
+      "FR21",
+      "FR22",
+      "FR23"
+    ],
+    "task_dependencies": [
+      "T06",
+      "T07",
+      "T13"
+    ],
+    "decision_dependencies": [
+      "D03",
+      "D06"
+    ],
+    "target_days": [
+      "D3",
+      "D4"
+    ],
+    "completion_evidence": "Exact reference shares; concurrency/idempotency tests; simulated payment; mismatch not closed.",
+    "status": "PLANNED",
+    "assignment_status": "ASSIGNED_IN_THIS_PLAN"
+  },
+  {
+    "id": "T16",
+    "owner": "Lameck",
+    "title": "Build settlement payment and reconciliation views",
+    "requirement_ids": [
+      "FR17",
+      "FR21",
+      "FR22",
+      "NF04"
+    ],
+    "task_dependencies": [
+      "T05",
+      "T03",
+      "T15"
+    ],
+    "decision_dependencies": [
+      "D06"
+    ],
+    "target_days": [
+      "D4",
+      "D5"
+    ],
+    "completion_evidence": "API-backed amounts; payment simulation label; receipt match and variance; repeated actions safe.",
+    "status": "PLANNED",
+    "assignment_status": "ASSIGNED_IN_THIS_PLAN"
+  },
+  {
+    "id": "T17",
+    "owner": "Obunde",
+    "title": "Implement consent grants withdrawal and history access",
+    "requirement_ids": [
+      "FR24",
+      "FR25",
+      "NF01"
+    ],
+    "task_dependencies": [
+      "T06",
+      "T03"
+    ],
+    "decision_dependencies": [
+      "D07"
+    ],
+    "target_days": [
+      "D3",
+      "D4"
+    ],
+    "completion_evidence": "Approved history fixtures and purposes; grant/recipient checks; withdrawal enforced server-side.",
+    "status": "PLANNED",
+    "assignment_status": "ASSIGNED_IN_THIS_PLAN"
+  },
+  {
+    "id": "T18",
+    "owner": "Ingrid",
+    "title": "Build patient consent and scoped history views",
+    "requirement_ids": [
+      "FR24",
+      "FR25",
+      "NF04"
+    ],
+    "task_dependencies": [
+      "T05",
+      "T03",
+      "T17"
+    ],
+    "decision_dependencies": [
+      "D04",
+      "D07"
+    ],
+    "target_days": [
+      "D3",
+      "D4"
+    ],
+    "completion_evidence": "Member action, purpose/recipient/scope and withdrawal shown; wrong recipient denied; synthetic contents approved.",
+    "status": "PLANNED",
+    "assignment_status": "ASSIGNED_IN_THIS_PLAN"
+  },
+  {
+    "id": "T19",
+    "owner": "Obunde",
+    "title": "Implement reporting inputs and operation or loss ratio APIs",
+    "requirement_ids": [
+      "FR02",
+      "FR26",
+      "FR27",
+      "FR28"
+    ],
+    "task_dependencies": [
+      "T04",
+      "T03",
+      "T07"
+    ],
+    "decision_dependencies": [
+      "D08"
+    ],
+    "target_days": [
+      "D4",
+      "D5"
+    ],
+    "completion_evidence": "Approved synthetic cohort values; correct definition; missing/zero input states; no duplicate claims.",
+    "status": "PLANNED",
+    "assignment_status": "ASSIGNED_IN_THIS_PLAN"
+  },
+  {
+    "id": "T20",
+    "owner": "Lameck",
+    "title": "Build operational and loss ratio reporting views",
+    "requirement_ids": [
+      "FR26",
+      "FR27",
+      "FR28",
+      "NF04"
+    ],
+    "task_dependencies": [
+      "T05",
+      "T19"
+    ],
+    "decision_dependencies": [
+      "D08"
+    ],
+    "target_days": [
+      "D4",
+      "D5"
+    ],
+    "completion_evidence": "Inputs/period/cohort/update time visible; unavailable state; segments use approved metric labels.",
+    "status": "PLANNED",
+    "assignment_status": "ASSIGNED_IN_THIS_PLAN"
+  },
+  {
+    "id": "T21",
+    "owner": "Tristan/Brian",
+    "title": "Implement agreed OCR anomaly or external demo adapters",
+    "requirement_ids": [
+      "FR09",
+      "FR10",
+      "FR16",
+      "FR01"
+    ],
+    "task_dependencies": [
+      "T08",
+      "T11"
+    ],
+    "decision_dependencies": [
+      "D02",
+      "D09",
+      "D10"
+    ],
+    "target_days": [
+      "D4",
+      "D5"
+    ],
+    "completion_evidence": "Only selected modes built; mock provenance visible; unknown access or thresholds remain blocked.",
+    "status": "PLANNED",
+    "assignment_status": "ASSIGNED_IN_THIS_PLAN"
+  },
+  {
+    "id": "T22",
+    "owner": "Ingrid",
+    "title": "Integrate agreed extraction and channel or identity screens",
+    "requirement_ids": [
+      "FR09",
+      "FR10",
+      "FR01"
+    ],
+    "task_dependencies": [
+      "T09",
+      "T21"
+    ],
+    "decision_dependencies": [
+      "D02",
+      "D10"
+    ],
+    "target_days": [
+      "D4",
+      "D5"
+    ],
+    "completion_evidence": "Human verification where selected; integration mode truthful; absent features labelled unavailable.",
+    "status": "PLANNED",
+    "assignment_status": "ASSIGNED_IN_THIS_PLAN"
+  },
+  {
+    "id": "T23",
+    "owner": "Silas",
+    "title": "Maintain BRD SRS decision register and change log",
+    "requirement_ids": [
+      "BR05",
+      "FR01",
+      "FR02"
+    ],
+    "task_dependencies": [],
+    "decision_dependencies": [],
+    "target_days": [
+      "D1",
+      "D2",
+      "D3",
+      "D4",
+      "D5",
+      "D6",
+      "D7"
+    ],
+    "completion_evidence": "Current decisions/requirements/task links; exact approvals; no agent recommendation promoted automatically.",
+    "status": "PLANNED",
+    "assignment_status": "ASSIGNED_IN_THIS_PLAN"
+  },
+  {
+    "id": "T24",
+    "owner": "Silas",
+    "title": "Collect approved synthetic finance history and negative fixtures",
+    "requirement_ids": [
+      "FR02",
+      "FR03",
+      "FR16",
+      "FR25",
+      "FR27"
+    ],
+    "task_dependencies": [],
+    "decision_dependencies": [
+      "D05",
+      "D06",
+      "D07",
+      "D08",
+      "D09"
+    ],
+    "target_days": [
+      "D1",
+      "D2"
+    ],
+    "completion_evidence": "Team-approved values/provenance recorded; unknown templates remain null until resolved.",
+    "status": "PLANNED",
+    "assignment_status": "ASSIGNED_IN_THIS_PLAN"
+  },
+  {
+    "id": "T25",
+    "owner": "Obunde",
+    "title": "Prepare CI configuration and demonstration deployment",
+    "requirement_ids": [
+      "NF02",
+      "NF05",
+      "NF06"
+    ],
+    "task_dependencies": [
+      "T04",
+      "T05"
+    ],
+    "decision_dependencies": [
+      "D03",
+      "D11",
+      "D12"
+    ],
+    "target_days": [
+      "D2",
+      "D5",
+      "D6"
+    ],
+    "completion_evidence": "Approved checks/migrations/setup; no credentials committed; intended audience and chosen hosting verified.",
+    "status": "PLANNED",
+    "assignment_status": "ASSIGNED_IN_THIS_PLAN"
+  },
+  {
+    "id": "T26",
+    "owner": "Ingrid",
+    "title": "Verify frontend flows responsive states and accessibility",
+    "requirement_ids": [
+      "NF04",
+      "NF06",
+      "FR08",
+      "FR25"
+    ],
+    "task_dependencies": [
+      "T09",
+      "T14",
+      "T18",
+      "T22"
+    ],
+    "decision_dependencies": [
+      "D12"
+    ],
+    "target_days": [
+      "D5",
+      "D6"
+    ],
+    "completion_evidence": "Form, denied-access, loading/conflict and agreed viewport evidence; issues filed with owners.",
+    "status": "PLANNED",
+    "assignment_status": "ASSIGNED_IN_THIS_PLAN"
+  },
+  {
+    "id": "T27",
+    "owner": "Lameck",
+    "title": "Run integrated end to end reviewer and reporting tests",
+    "requirement_ids": [
+      "FR12",
+      "FR17",
+      "FR22",
+      "FR27",
+      "NF04"
+    ],
+    "task_dependencies": [
+      "T10",
+      "T12",
+      "T16",
+      "T20"
+    ],
+    "decision_dependencies": [
+      "D08",
+      "D12"
+    ],
+    "target_days": [
+      "D5",
+      "D6"
+    ],
+    "completion_evidence": "Reference path and reporting/history linkage tests; actual result evidence, no manual success substitution.",
+    "status": "PLANNED",
+    "assignment_status": "ASSIGNED_IN_THIS_PLAN"
+  },
+  {
+    "id": "T28",
+    "owner": "Tristan/Brian",
+    "title": "Verify rules versions corrections and fixtures",
+    "requirement_ids": [
+      "FR05",
+      "FR11",
+      "FR13",
+      "FR14",
+      "FR18"
+    ],
+    "task_dependencies": [
+      "T11",
+      "T13",
+      "T21",
+      "T24"
+    ],
+    "decision_dependencies": [
+      "D05",
+      "D06",
+      "D09"
+    ],
+    "target_days": [
+      "D5",
+      "D6"
+    ],
+    "completion_evidence": "AT01 AT02 AT03 AT04 AT08 AT11 evidence; blocked fixtures reported honestly.",
+    "status": "PLANNED",
+    "assignment_status": "ASSIGNED_IN_THIS_PLAN"
+  },
+  {
+    "id": "T29",
+    "owner": "Obunde",
+    "title": "Verify access concurrency payments history and finance",
+    "requirement_ids": [
+      "FR19",
+      "FR23",
+      "FR25",
+      "FR27",
+      "NF01"
+    ],
+    "task_dependencies": [
+      "T15",
+      "T17",
+      "T19",
+      "T24"
+    ],
+    "decision_dependencies": [
+      "D04",
+      "D06",
+      "D07",
+      "D08"
+    ],
+    "target_days": [
+      "D5",
+      "D6"
+    ],
+    "completion_evidence": "AT05 AT06 AT07 AT09 AT10 AT12 evidence; fresh database migration check.",
+    "status": "PLANNED",
+    "assignment_status": "ASSIGNED_IN_THIS_PLAN"
+  },
+  {
+    "id": "T30",
+    "owner": "Silas",
+    "title": "Prepare demo script presentation and limitation statements",
+    "requirement_ids": [
+      "BR01",
+      "BR04",
+      "FR01"
+    ],
+    "task_dependencies": [
+      "T01"
+    ],
+    "decision_dependencies": [
+      "D02",
+      "D12"
+    ],
+    "target_days": [
+      "D2",
+      "D5",
+      "D6",
+      "D7"
+    ],
+    "completion_evidence": "Five-dimension storyboard, demo/pitch script, synthetic/mock disclosures, source-backed market statements.",
+    "status": "PLANNED",
+    "assignment_status": "ASSIGNED_IN_THIS_PLAN"
+  },
+  {
+    "id": "T31",
+    "owner": "Silas",
+    "title": "Index acceptance evidence and coordinate rehearsal",
+    "requirement_ids": [
+      "BR05",
+      "NF05"
+    ],
+    "task_dependencies": [
+      "T26",
+      "T27",
+      "T28",
+      "T29",
+      "T30"
+    ],
+    "decision_dependencies": [
+      "D12"
+    ],
+    "target_days": [
+      "D6",
+      "D7"
+    ],
+    "completion_evidence": "Evidence index mapped to AT01 through AT14; unresolved gaps and rehearsal failures assigned.",
+    "status": "PLANNED",
+    "assignment_status": "ASSIGNED_IN_THIS_PLAN"
+  },
+  {
+    "id": "T32",
+    "owner": "Team",
+    "title": "Confirm final build and presentation handoff",
+    "requirement_ids": [
+      "BR01",
+      "BR04",
+      "BR05"
+    ],
+    "task_dependencies": [
+      "T25",
+      "T31"
+    ],
+    "decision_dependencies": [
+      "D02",
+      "D11",
+      "D12"
+    ],
+    "target_days": [
+      "D7"
+    ],
+    "completion_evidence": "Team-named acceptance owner records pass/blocked items; reproducible build, script and known limitations handed over.",
+    "status": "PLANNED",
+    "assignment_status": "ASSIGNED_IN_THIS_PLAN"
+  }
+]
