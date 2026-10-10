@@ -15,7 +15,8 @@ Project scope, requirements, decisions and tasks live in [docs/](docs/). Start w
 | `backend/app/modules/` | Domain modules: access, coverage, claims, settlement, reporting, history, audit. Each has `models.py`, `dtos.py`, `services.py`, `controllers.py` |
 | `contracts/` | OpenAPI contract (produced by T03) |
 | `fixtures/` | Approved synthetic fixtures, copied unchanged from the agent pack (nulls mean unknown) |
-| `docs/` | BRD, SRS, work plan, decisions, requirements, backlog, acceptance tests |
+| `db/schema/` | Proposed PostgreSQL DDL (`001_initial.sql`), pending D03/D05. Alembic does not apply it |
+| `docs/` | BRD, SRS, work plan, decisions, requirements, backlog, acceptance tests, ERD |
 | `frontend/` | Owned by Ingrid/Lameck |
 
 ## Prerequisites
@@ -98,8 +99,10 @@ There is no seed step yet. The Case 001 seed is task T07.
 
 ## Known limitations
 
-- Scaffolding only: no business tables, endpoints or rules exist. The baseline migration
-  (`0001_baseline`) creates nothing.
+- Scaffolding only: no business endpoints or rules exist. The baseline migration
+  (`0001_baseline`) creates nothing. Proposed tables live in
+  [`db/schema/001_initial.sql`](db/schema/001_initial.sql) and [`docs/erd.md`](docs/erd.md)
+  for D03/D05 review. Alembic does not apply that file.
 - **Open: Postgres schema strategy** (per-module schemas vs one default schema) is for
   Tristan/Brian to decide. Everything uses the default `public` schema for now; see TODOs in
   `backend/app/shared/base.py` and `backend/alembic/env.py`.
