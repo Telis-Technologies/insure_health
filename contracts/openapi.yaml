@@ -1,0 +1,505 @@
+openapi: 3.1.0
+info:
+  title: Claimwise API
+  version: 0.1.0
+  description: Health claims integrity platform. Synthetic data only.
+servers:
+  - url: http://localhost:8000
+    description: Local dev
+  - url: https://api.claimwise.local
+    description: Demo
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Money:
+      type: object
+      required: [amount_minor, currency]
+      properties:
+        amount_minor:
+          type: integer
+          format: int64
+        currency:
+          type: string
+          enum: [KES]
+      example:
+        amount_minor: 3610000
+        currency: KES
+
+    Error:
+      type: object
+      required: [code, message, request_id]
+      properties:
+        code: { type: string }
+        message: { type: string }
+        details: { type: array, items: { type: object } }
+        request_id: { type: string, format: uuid }
+
+    ClaimStatus:
+      type: string
+      enum:
+        - DRAFT
+        - SUBMITTED
+        - VALIDATED
+        - UNDER_REVIEW
+        - CORRECTION_REQUESTED
+        - CORRECTED_SUBMITTED
+        - CLARIFICATION
+        - APPROVED
+        - PAYMENT_PENDING
+        - PAID
+        - RECONCILED
+        - REJECTED
+        - APPEALED
+        - CANCELLED
+
+    ClaimLine:
+      type: object
+      required: [line_number, service_code, service_name, quantity, billed]
+      properties:
+        line_number: { type: integer }
+        service_code: { type: string }
+        service_name: { type: string }
+        quantity: { type: number }
+        billed: { $ref: '#/components/schemas/Money' }
+        notes: { type: string, nullable: true }
+
+    ClaimVersion:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        version_number: { type: integer }
+        source:
+          type: string
+          enum: [PROVIDER_SUBMITTED, PROVIDER_CORRECTED, SYSTEM_IMPORT]
+        submitted_at: { type: string, format: date-time, nullable: true }
+        lines: { type: array, items: { $ref: '#/components/schemas/ClaimLine' } }
+
+    Finding:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        finding_code: { type: string }
+        severity: { type: string, enum: [INFO, WARN, BLOCK] }
+        message: { type: string }
+        affected_lines: { type: array, items: { type: integer } }
+        proposed_correction: { $ref: '#/components/schemas/Money' }
+        observed_value: { type: object }
+        expected_value: { type: object, nullable: true }
+        evidence_refs: { type: object }
+        status:
+          type: string
+          enum: [OPEN, ACCEPTED, DISPUTED, OVERRIDDEN, RESOLVED, WITHDRAWN]
+
+    ValidationRun:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        claim_version_id: { type: string, format: uuid }
+        total_billed: { $ref: '#/components/schemas/Money' }
+        total_correction: { $ref: '#/components/schemas/Money' }
+        total_eligible: { $ref: '#/components/schemas/Money' }
+        findings: { type: array, items: { $ref: '#/components/schemas/Finding' } }
+        created_at: { type: string, format: date-time }
+
+    Settlement:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        eligible: { $ref: '#/components/schemas/Money' }
+        member_share: { $ref: '#/components/schemas/Money' }
+        insurer_share: { $ref: '#/components/schemas/Money' }
+        remaining_benefit: { $ref: '#/components/schemas/Money' }
+        status: { type: string }
+
+    ConsentGrant:
+      type: object
+      required: [member_id, recipient_org_id, purpose, scope]
+      properties:
+        id: { type: string, format: uuid }
+        member_id: { type: string, format: uuid }
+        recipient_org_id: { type: string, format: uuid }
+        purpose: { type: string, enum: [CARE, UNDERWRITING, CLAIMS_REVIEW] }
+        scope: { type: object }
+        expires_at: { type: string, format: date-time, nullable: true }
+        status: { type: string, enum: [ACTIVE, EXPIRED, WITHDRAWN, DENIED] }
+
+paths:
+  /api/v1/claims:
+    get:
+      summary: List claims (tenant-scoped)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: status, in: query, schema: { $ref: '#/components/schemas/ClaimStatus' } }
+        - { name: provider_org_id, in: query, schema: { type: string, format: uuid } }
+        - { name: page, in: query, schema: { type: integer, default: 1 } }
+        - { name: page_size, in: query, schema: { type: integer, default: 25, maximum: 100 } }
+      responses:
+        '200': { description: Paginated list }
+        '403': { description: Cross-org access denied }
+    post:
+      summary: Create draft claim
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [member_id, policy_id, provider_org_id, encounter_id, lines]
+              properties:
+                member_id: { type: string, format: uuid }
+                policy_id: { type: string, format: uuid }
+                provider_org_id: { type: string, format: uuid }
+                encounter_id: { type: string, format: uuid }
+                lines: { type: array, items: { $ref: '#/components/schemas/ClaimLine' } }
+      responses:
+        '201': { description: Draft created }
+        '422': { description: Missing required field }
+        '403': { description: Not authorized }
+
+  /api/v1/claims/{id}:
+    get:
+      summary: Claim overview
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200': { description: Claim detail }
+        '404': { description: Not found }
+
+  /api/v1/claims/{id}/draft:
+    patch:
+      summary: Edit draft
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                lines: { type: array, items: { $ref: '#/components/schemas/ClaimLine' } }
+      responses:
+        '200': { description: Updated }
+        '409': { description: Not in DRAFT }
+
+  /api/v1/claims/{id}/submit:
+    post:
+      summary: Submit as immutable version
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Version created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ClaimVersion' }
+        '422': { description: Missing fields }
+        '409': { description: Wrong state }
+
+  /api/v1/claims/{id}/versions:
+    get:
+      summary: List versions
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Versions
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ClaimVersion' }
+
+  /api/v1/claims/{id}/validate:
+    post:
+      summary: Run rule assessment
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [claim_version_id]
+              properties:
+                claim_version_id: { type: string, format: uuid }
+      responses:
+        '201':
+          description: Run created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationRun' }
+        '409': { description: Wrong state }
+
+  /api/v1/claims/{id}/findings:
+    get:
+      summary: Read findings
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+        - { name: validation_run_id, in: query, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Findings
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Finding' }
+
+  /api/v1/claims/{id}/correction-requests:
+    post:
+      summary: Request corrections
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [based_on_version_id, requested_lines, reason]
+              properties:
+                based_on_version_id: { type: string, format: uuid }
+                requested_lines: { type: array, items: { type: integer } }
+                reason: { type: string }
+      responses:
+        '201': { description: Request created }
+
+  /api/v1/claims/{id}/corrections:
+    post:
+      summary: Submit corrected version
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [correction_request_id, lines]
+              properties:
+                correction_request_id: { type: string, format: uuid }
+                lines: { type: array, items: { $ref: '#/components/schemas/ClaimLine' } }
+                notes: { type: string }
+      responses:
+        '201':
+          description: Corrected version
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ClaimVersion' }
+
+  /api/v1/claims/{id}/decisions:
+    post:
+      summary: Record finding decisions
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [decisions]
+              properties:
+                decisions:
+                  type: array
+                  items:
+                    type: object
+                    required: [finding_id, decision, reason]
+                    properties:
+                      finding_id: { type: string, format: uuid }
+                      decision: { type: string, enum: [ACCEPT, DISPUTE, OVERRIDE, CLARIFY] }
+                      reason: { type: string }
+                      override_authority: { type: string, nullable: true }
+      responses:
+        '200': { description: Recorded }
+        '403': { description: No authority }
+
+  /api/v1/claims/{id}/approve:
+    post:
+      summary: Approve exact version (atomic)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [claim_version_id]
+              properties:
+                claim_version_id: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Settlement created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Settlement' }
+        '409': { description: Stale version or unresolved findings }
+
+  /api/v1/claims/{id}/settlement:
+    get:
+      summary: Read settlement
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Settlement
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Settlement' }
+
+  /api/v1/payments:
+    post:
+      summary: Record simulated payment
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: Idempotency-Key, in: header, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [settlement_id, amount]
+              properties:
+                settlement_id: { type: string, format: uuid }
+                amount: { $ref: '#/components/schemas/Money' }
+                method: { type: string, enum: [SIMULATED], default: SIMULATED }
+      responses:
+        '201': { description: Payment recorded }
+        '409': { description: Idempotency conflict }
+
+  /api/v1/reconciliations:
+    post:
+      summary: Match receipt to settlement
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [payment_id, settlement_id, matched]
+              properties:
+                payment_id: { type: string, format: uuid }
+                settlement_id: { type: string, format: uuid }
+                matched: { $ref: '#/components/schemas/Money' }
+      responses:
+        '200':
+          description: Variance + status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  variance: { $ref: '#/components/schemas/Money' }
+                  status: { type: string }
+
+  /api/v1/claims/{id}/audit:
+    get:
+      summary: Read audit trail
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200': { description: Audit events }
+
+  /api/v1/members/{id}/history:
+    get:
+      summary: Read permitted history
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+        - { name: purpose, in: query, required: true, schema: { type: string, enum: [CARE, UNDERWRITING, CLAIMS_REVIEW] } }
+      responses:
+        '200': { description: History }
+        '403': { description: No active grant }
+
+  /api/v1/consent-grants:
+    post:
+      summary: Record grant
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ConsentGrant' }
+      responses:
+        '201': { description: Grant recorded }
+
+  /api/v1/consent-grants/{id}/withdraw:
+    post:
+      summary: Withdraw grant
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200': { description: Withdrawn }
+
+  /api/v1/reports/operations:
+    get:
+      summary: Operational metrics
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: period_start, in: query, schema: { type: string, format: date } }
+        - { name: period_end, in: query, schema: { type: string, format: date } }
+      responses:
+        '200': { description: Metrics }
+
+  /api/v1/reports/loss-ratio:
+    get:
+      summary: Loss ratio or unavailable state
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: cohort, in: query, schema: { type: string } }
+        - { name: period_start, in: query, schema: { type: string, format: date } }
+        - { name: period_end, in: query, schema: { type: string, format: date } }
+      responses:
+        '200': { description: Ratio or unavailable }
+
+  /api/v1/documents:
+    post:
+      summary: Upload evidence
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file: { type: string, format: binary }
+                link_to_claim_version_id: { type: string, format: uuid }
+                link_type: { type: string, enum: [BILL, AUTHORIZATION, CLINICAL_NOTE, RECEIPT] }
+      responses:
+        '201': { description: Stored }
+
+  /api/v1/documents/{id}:
+    get:
+      summary: Authorized document access
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200': { description: Document stream }
+        '403': { description: Denied }

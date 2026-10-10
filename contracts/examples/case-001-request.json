@@ -1,0 +1,14 @@
+{
+  "member_id": "00000000-0000-0000-0000-000000000001",
+  "policy_id": "00000000-0000-0000-0000-000000000002",
+  "provider_org_id": "00000000-0000-0000-0000-000000000003",
+  "encounter_id": "00000000-0000-0000-0000-000000000004",
+  "lines": [
+    { "line_number": 1, "service_code": "CONSULT-OP", "service_name": "Consultation", "quantity": 1, "billed": { "amount_minor": 250000, "currency": "KES" } },
+    { "line_number": 2, "service_code": "LAB-CBC", "service_name": "CBC", "quantity": 1, "billed": { "amount_minor": 180000, "currency": "KES" } },
+    { "line_number": 3, "service_code": "IMG-MRI-BRAIN", "service_name": "MRI brain without contrast", "quantity": 1, "billed": { "amount_minor": 2800000, "currency": "KES" } },
+    { "line_number": 4, "service_code": "PHARM-MISC", "service_name": "Medication", "quantity": 1, "billed": { "amount_minor": 120000, "currency": "KES" } },
+    { "line_number": 5, "service_code": "LAB-CBC", "service_name": "Duplicate CBC", "quantity": 1, "billed": { "amount_minor": 180000, "currency": "KES" } },
+    { "line_number": 6, "service_code": "ADMIN-FEE", "service_name": "Administration fee", "quantity": 1, "billed": { "amount_minor": 80000, "currency": "KES" } }
+  ]
+}

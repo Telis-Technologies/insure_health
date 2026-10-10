@@ -1,0 +1,22 @@
+{
+  "validation_run": {
+    "id": "00000000-0000-0000-0000-000000000010",
+    "claim_version_id": "00000000-0000-0000-0000-000000000011",
+    "total_billed": { "amount_minor": 3610000, "currency": "KES" },
+    "total_correction": { "amount_minor": 640000, "currency": "KES" },
+    "total_eligible": { "amount_minor": 2970000, "currency": "KES" },
+    "findings": [
+      { "finding_code": "TARIFF_MISMATCH", "severity": "WARN", "message": "Billed rate exceeds contract tariff", "affected_lines": [1, 2], "proposed_correction": { "amount_minor": 80000, "currency": "KES" }, "status": "OPEN" },
+      { "finding_code": "AUTH_CEILING", "severity": "BLOCK", "message": "MRI billed above authorization ceiling", "affected_lines": [3], "proposed_correction": { "amount_minor": 300000, "currency": "KES" }, "status": "OPEN" },
+      { "finding_code": "DUPLICATE_LINE", "severity": "BLOCK", "message": "Duplicate CBC within same encounter", "affected_lines": [5], "proposed_correction": { "amount_minor": 180000, "currency": "KES" }, "status": "OPEN" },
+      { "finding_code": "EXCLUDED_LINE", "severity": "WARN", "message": "Administration fee excluded in CON-2026-017", "affected_lines": [6], "proposed_correction": { "amount_minor": 80000, "currency": "KES" }, "status": "OPEN" }
+    ]
+  },
+  "settlement_preview": {
+    "eligible": { "amount_minor": 2970000, "currency": "KES" },
+    "member_share": { "amount_minor": 297000, "currency": "KES" },
+    "insurer_share": { "amount_minor": 2673000, "currency": "KES" },
+    "remaining_benefit": { "amount_minor": 5527000, "currency": "KES" },
+    "reconciliation_variance": { "amount_minor": 0, "currency": "KES" }
+  }
+}
