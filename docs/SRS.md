@@ -228,6 +228,18 @@ Hospital, diagnosis and procedure views shall use an approved metric definition 
 
 Acceptance: A provider-cost chart is not labelled provider loss ratio unless an agreed premium-allocation method exists. Decision dependencies: D08.
 
+### FR29 Versioned policy and rule catalogue
+
+Authorized insurer users shall inspect policy/benefit terms, provider-contract and tariff versions, and adjudication-rule versions, including status, effective dates, source document/clause, author, approver, publication time and supersession history. Draft edits shall create a new version; published versions and prior assessments shall not be overwritten. Every publication requires an independent insurer-authorized approver distinct from the author. TPA authoring or publication is allowed only within an explicit, scoped insurer delegation.
+
+Acceptance: A claim assessment links to the exact policy, contract/tariff, authorization and rule versions selected for its service date. Every finding cites its source rule/version and evidence. Draft, approval, publication and supersession events appear in history. The frontend scaffold may show a proposed workflow but cannot grant access or claim publication succeeded without an API response. Decision dependencies: D03, D04, D05, D15.
+
+### FR30 Service-date version selection
+
+Coverage, provider-contract/tariff, authorization and rule versions shall be selected using the claim's service date, as confirmed by Lameck for the frontend scope. A new version does not rewrite historical assessments.
+
+Acceptance: The assessment records the service date and selected version identifiers; no eligible effective-dated version produces an explicit unavailable/blocked state. Decision dependencies: D03, D05.
+
 ### Finance demonstration input template
 
 The agent pack contains finance_inputs.template.json. Period, cohort, earned premiums, incurred losses/reserve components, gross/net basis and source timestamps are deliberately null. D08 must supply them before the numerical loss-ratio demo is built. Synthetic approval is required for values as well as for the chosen formula.
@@ -262,6 +274,11 @@ This endpoint catalogue is a proposal to freeze in D03. The shared OpenAPI contr
 | POST | /api/v1/payments | Record simulated payment and allocation. |
 | POST | /api/v1/reconciliations | Match a receipt to allocation(s). |
 | GET | /api/v1/claims/{id}/audit | Read authorized workflow and financial events. |
+| GET | /api/v1/members/{id}/policies | Read authorized policy and benefit relationships. |
+| GET | /api/v1/policies/{id}/versions | Inspect policy/benefit versions and effective periods. |
+| GET | /api/v1/providers/{id}/contracts | Read insurer-provider contracts and applicable tariff references. |
+| GET | /api/v1/policies/{id}/rules | List rule catalogue entries and their current lifecycle state. |
+| GET | /api/v1/rules/{id}/versions | Inspect rule versions, source clauses, effective periods and supersession history. |
 | GET | /api/v1/members/{id}/history | Purpose-checked access to permitted history. |
 | POST | /api/v1/consent-grants | Record grant under selected actor and policy. |
 | POST | /api/v1/consent-grants/{id}/withdraw | Record withdrawal and enforce future access. |
@@ -270,7 +287,7 @@ This endpoint catalogue is a proposal to freeze in D03. The shared OpenAPI contr
 | POST | /api/v1/documents | Upload permitted private evidence. |
 | GET | /api/v1/documents/{id} | Authorized document access. |
 
-Authentication routes, approved-rule configuration endpoints, import APIs and appeal/reversal actions depend on D03 D04 D06 D10. Agents must not invent these while implementing a listed endpoint.
+Authentication routes, rule draft/approval/publication endpoints, import APIs and appeal/reversal actions depend on D03 D04 D06 D10 D15. The catalogue endpoints above are proposed read-only operations; exact filtering and response schemas still require the D03 API freeze. Agents must not invent mutation endpoints or permission grants while implementing them.
 
 ## Interface security and operational acceptance
 
