@@ -21,15 +21,30 @@ Project scope, requirements, decisions and tasks live in [docs/](docs/). Start w
 
 ## Prerequisites
 
-Docker with Docker Compose v2. Everything runs in containers; nothing is installed on the host.
+Docker with Docker Compose v2 for PostgreSQL, FastAPI and Keycloak. The Next.js frontend runs on Node.js 22.22.3 (see `frontend/.nvmrc`).
 
 ## Setup
 
 ```sh
 cp .env.example .env      # then replace the placeholder values; .env is git-ignored
-docker compose up -d --build
-docker compose ps         # db should show "(healthy)"
+docker compose up -d --build db backend keycloak
+docker compose ps         # db should show healthy; Keycloak imports the Claimwise realm
+
+# Use Node 22, then put a private 16+ character CLAIMWISE_DEMO_PASSWORD in
+# an ignored .env.demo file (generate one with `openssl rand -hex 20`).
+nvm use 22.22.3
+node --env-file=.env --env-file=.env.demo scripts/repair-keycloak-dev.mjs
+
+cd frontend
+nvm use
+npm ci
+cp .env.example .env.local   # generate AUTH_SECRET with `openssl rand -base64 32`
+npm run dev
 ```
+
+Open the frontend at `http://localhost:3000` and Keycloak administration at `http://localhost:8080`. The Admin Console uses the local administrator credentials in the ignored root `.env`; it does not create a frontend account automatically. For the frontend, sign in as synthetic tenant admin `lameck` with the password in the ignored `.env.demo`. The repair script also provisions separate demo personas listed in [frontend/README.md](frontend/README.md). The imported `claimwise` realm defines role groups and the `claimwise-web` public OIDC client with authorization code + PKCE (S256). The web client callback is `http://localhost:3000/api/auth/callback/keycloak`.
+
+The local repair script registers Keycloak user-profile attributes `tenant_ids`, `organization_ids`, and `organization_name` as administrator-managed, then assigns the appropriate role groups to synthetic users. Available role names are `provider-biller`, `tpa-reviewer`, `insurer-claims-adjudicator`, `insurer-claims-approver`, `insurer-finance`, `insurer-policy-author`, `insurer-policy-approver`, `tenant-admin`, `platform-admin`, and `auditor`. Do not use direct-access password grants for application users. Production requires HTTPS, an explicit hostname, a production database, managed secrets, backups, and a reviewed tenant-isolation design; `start-dev` and shared demo credentials are for local development only.
 
 `.env` values:
 
@@ -38,6 +53,7 @@ docker compose ps         # db should show "(healthy)"
 | `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` | Database created by the `db` container. Required. |
 | `APP_ENV` | Free-form environment label (default `development`). |
 | `API_PORT` | Host port the API is published on, bound to 127.0.0.1 (default `8000`). |
+| `KEYCLOAK_PORT`, `KEYCLOAK_ADMIN_USERNAME`, `KEYCLOAK_ADMIN_PASSWORD` | Local Keycloak developer console. Use strong local credentials; never reuse them in production. |
 
 The backend's `DATABASE_URL` is assembled by `docker-compose.yml` from these values.
 The database port is not published to the host; use `docker compose exec db psql ...`.
@@ -95,7 +111,7 @@ docker compose up -d --build
 docker compose exec backend alembic upgrade head
 ```
 
-There is no seed step yet. The Case 001 seed is task T07.
+The Keycloak demo identities can be recreated with `scripts/repair-keycloak-dev.mjs`; it resets their local passwords to `CLAIMWISE_DEMO_PASSWORD`. There is no business-data seed step yet. The Case 001 seed is task T07.
 
 ## Known limitations
 
@@ -106,7 +122,7 @@ There is no seed step yet. The Case 001 seed is task T07.
 - **Open: Postgres schema strategy** (per-module schemas vs one default schema) is for
   Tristan/Brian to decide. Everything uses the default `public` schema for now; see TODOs in
   `backend/app/shared/base.py` and `backend/alembic/env.py`.
-- Not yet decided: auth/session (D04), hosting and deployment (D11), API contract and error
+- Still open: exact tenant membership/organization grants and backend enforcement (D04), hosting and deployment (D11), API contract and error
   envelope (T03), money column details beyond "integer minor units + currency" (D03).
 - `GET /health` is a liveness check only; it does not query the database.
 - The compose setup is for local development (`--reload`, bind-mounted source). It is not a
