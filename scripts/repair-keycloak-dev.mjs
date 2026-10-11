@@ -1,4 +1,4 @@
-/** Repair an already-imported local realm and provision synthetic demo identities. */
+/** Repair the loopback realm and provision local role-specific identities. */
 import { readFile } from "node:fs/promises";
 
 const base = new URL(process.env.KEYCLOAK_BASE_URL || "http://127.0.0.1:8080");
@@ -43,6 +43,15 @@ for (const wanted of realmConfig.clientScopes) {
 const scopes = await admin("GET", "client-scopes");
 const client = (await admin("GET", "clients?clientId=claimwise-web"))[0];
 if (!client) throw new Error("claimwise-web client is absent from the imported realm.");
+if (client.attributes?.["post.logout.redirect.uris"] !== "http://localhost:3000/*") {
+  await admin("PUT", `clients/${client.id}`, { ...client, attributes: { ...client.attributes, "post.logout.redirect.uris": "http://localhost:3000/*" } });
+  console.log("Configured the local post-logout redirect URI.");
+}
+const realm = await admin("GET", "");
+if (realm.loginTheme !== "claimwise") {
+  await admin("PUT", "", { ...realm, loginTheme: "claimwise" });
+  console.log("Applied Claimwise login theme.");
+}
 const attachedScopes = new Set((await admin("GET", `clients/${client.id}/default-client-scopes`)).map((scope) => scope.id));
 for (const name of ["profile", "email", "roles", "claimwise-tenant-context"]) {
   const scope = scopes.find((candidate) => candidate.name === name);
@@ -80,27 +89,28 @@ if (profileChanged) {
 
 const groups = await admin("GET", "groups?briefRepresentation=false&max=100");
 const groupByName = new Map(groups.map((group) => [group.name, group.id]));
-const tenantAttributes = { tenant_ids: ["demo-health-insurer"], organization_ids: ["demo-insurer"], organization_name: ["Harbor Health Assurance (synthetic)"] };
-const demoUsers = [
-  ["lameck", "Lameck", "Demo", "tenant-administrators", tenantAttributes],
-  ["provider.demo", "Provider", "Biller", "provider-billing", { ...tenantAttributes, organization_ids: ["DEMO-PRO-01"], organization_name: ["Synthetic Health Facility 01"] }],
-  ["reviewer.demo", "TPA", "Reviewer", "tpa-reviewers", { ...tenantAttributes, organization_ids: ["demo-tpa"], organization_name: ["MediBridge Administrators (synthetic)"] }],
-  ["adjudicator.demo", "Claims", "Adjudicator", "insurer-claims-adjudicators", tenantAttributes],
-  ["approver.demo", "Claims", "Approver", "insurer-claims-approvers", tenantAttributes],
-  ["finance.demo", "Insurer", "Finance", "insurer-finance", tenantAttributes],
-  ["policy.author.demo", "Policy", "Author", "insurer-policy-authors", tenantAttributes],
-  ["policy.approver.demo", "Policy", "Approver", "insurer-policy-approvers", tenantAttributes],
-  ["auditor.demo", "Tenant", "Auditor", "auditors", tenantAttributes],
-  ["platform.demo", "Platform", "Admin", "platform-administrators", {}],
+const tenantAttributes = { tenant_ids: ["harbor-health-assurance"], organization_ids: ["harbor-health-assurance"], organization_name: ["Harbor Health Assurance"] };
+const localUsers = [
+  ["lameck", "Lameck", "Administrator", "tenant-administrators", tenantAttributes],
+  ["grace.wanjiku", "Grace", "Wanjiku", "provider-billing", { ...tenantAttributes, organization_ids: ["PRO-HHA-01"], organization_name: ["Riverside Medical Centre"] }],
+  ["joseph.otieno", "Joseph", "Otieno", "tpa-reviewers", { ...tenantAttributes, organization_ids: ["medibridge-administrators"], organization_name: ["MediBridge Administrators"] }],
+  ["mercy.kamau", "Mercy", "Kamau", "insurer-claims-adjudicators", tenantAttributes],
+  ["peter.mutua", "Peter", "Mutua", "insurer-claims-approvers", tenantAttributes],
+  ["faith.njeri", "Faith", "Njeri", "insurer-finance", tenantAttributes],
+  ["sarah.wambui", "Sarah", "Wambui", "insurer-policy-authors", tenantAttributes],
+  ["david.ochieng", "David", "Ochieng", "insurer-policy-approvers", tenantAttributes],
+  ["naomi.chebet", "Naomi", "Chebet", "auditors", tenantAttributes],
+  ["felix.mwangi", "Felix", "Mwangi", "platform-administrators", {}],
 ];
-for (const [username, firstName, lastName, groupName, attributes] of demoUsers) {
+for (const [username, firstName, lastName, groupName, attributes] of localUsers) {
   const groupId = groupByName.get(groupName);
   if (!groupId) throw new Error(`Missing imported group: ${groupName}`);
   let user = (await admin("GET", `users?username=${encodeURIComponent(username)}&exact=true`))[0];
-  if (!user) {
+  const created = !user;
+  if (created) {
     await admin("POST", "users", { username, firstName, lastName, email: `${username}@example.test`, enabled: true, emailVerified: true, attributes });
     user = (await admin("GET", `users?username=${encodeURIComponent(username)}&exact=true`))[0];
-    console.log(`Created synthetic user: ${username}`);
+    console.log(`Created local user: ${username}`);
   }
   await admin("PUT", `users/${user.id}`, {
     username,
@@ -112,6 +122,6 @@ for (const [username, firstName, lastName, groupName, attributes] of demoUsers) 
     attributes,
   });
   await admin("PUT", `users/${user.id}/groups/${groupId}`);
-  await admin("PUT", `users/${user.id}/reset-password`, { type: "password", value: demoPassword, temporary: false });
+  if (created) await admin("PUT", `users/${user.id}/reset-password`, { type: "password", value: demoPassword, temporary: false });
 }
-console.log("Local Keycloak realm repaired. Demo usernames are documented in frontend/README.md; their password is in ignored .env.demo.");
+console.log("Local Keycloak realm repaired. Usernames are documented in frontend/README.md; new-account passwords are in ignored .env.demo. Existing passwords were not changed.");

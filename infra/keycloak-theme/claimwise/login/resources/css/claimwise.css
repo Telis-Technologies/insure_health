@@ -1,0 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap');
+
+html, body, .login-pf body { min-height: 100%; font-family: 'DM Sans', Arial, sans-serif; }
+.login-pf body { background: radial-gradient(circle at 15% 15%, #3d9069, #164f3a 47%, #0f382d) fixed; color: #243b2d; }
+#kc-header { margin-top: 7vh; }
+#kc-header-wrapper { color: #fff; font: 800 30px Manrope, Arial, sans-serif; letter-spacing: -1px; text-align: center; text-transform: none; }
+.card-pf, .pf-v5-c-login__main, .pf-c-login__main { max-width: 470px; margin-inline: auto; padding: 34px 38px; border: 1px solid #dce9df; border-radius: 17px; background: #fff; box-shadow: 0 24px 70px #071e1859; }
+#kc-page-title { color: #173d2a; font: 800 27px Manrope, Arial, sans-serif; letter-spacing: -.8px; }
+#kc-form-login label, #kc-form label { color: #344e3b; font-size: 14px; font-weight: 700; }
+#kc-form-login input, #kc-form input, .pf-c-form-control { min-height: 44px; border: 1px solid #a9c6af; border-radius: 8px; color: #183b28; background: #fff; font-size: 15px; }
+#kc-form-login input:focus, #kc-form input:focus { border-color: #398b5b; box-shadow: 0 0 0 3px #70b98536; }
+#kc-login, #kc-form-buttons input, .pf-c-button.pf-m-primary, .pf-v5-c-button.pf-m-primary { width: 100%; min-height: 46px; border: 0; border-radius: 8px; color: white; background: #236d4b; font-size: 15px; font-weight: 700; }
+#kc-login:hover, #kc-form-buttons input:hover, .pf-c-button.pf-m-primary:hover { background: #175839; }
+#kc-form-options, #kc-form-options a, #kc-info { color: #526e5b; font-size: 13px; }
+#kc-info-wrapper { background: transparent; }
+a { color: #216d48; }
+@media (max-width: 600px) { #kc-header { margin-top: 28px; } #kc-header-wrapper { font-size: 24px; } .card-pf, .pf-v5-c-login__main, .pf-c-login__main { margin: 15px; padding: 26px 20px; } }

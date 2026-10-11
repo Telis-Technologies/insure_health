@@ -1,6 +1,7 @@
 {
   "realm": "claimwise",
   "displayName": "Claimwise Health",
+  "loginTheme": "claimwise",
   "enabled": true,
   "registrationAllowed": false,
   "resetPasswordAllowed": true,

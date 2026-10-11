@@ -1,5 +1,15 @@
-import { Dashboard } from "@/components/dashboard";
+import Link from "next/link";
+import { auth } from "@/auth";
 
-export default function Home() {
-  return <Dashboard />;
+export const instant = false;
+
+export default async function Home() {
+  const session = await auth();
+  return <main className="landing-page">
+    <header className="landing-header"><Link className="landing-brand" href="/"><span className="brand-mark">C</span><span>claimwise<span className="landing-brand-dot">.</span></span></Link><nav aria-label="Public navigation"><a href="#how-it-works">How it works</a><a href="#workspaces">Workspaces</a><Link className="button button-outline" href={session?.user ? "/workspace" : "/login"}>{session?.user ? "Open workspace" : "Sign in"}</Link></nav></header>
+    <section className="landing-hero"><div className="landing-copy"><span className="landing-eyebrow">HEALTH CLAIMS, CONNECTED</span><h1>Every claim.<br /><em>One clear path.</em></h1><p>Coordinate coverage checks, provider submissions, review decisions and settlement across the health insurance network.</p><div className="landing-actions"><Link className="button button-primary" href={session?.user ? "/workspace" : "/login"}>{session?.user ? "Open your workspace" : "Access your workspace"} <span>→</span></Link><a className="landing-text-link" href="#how-it-works">Explore the workflow <span>↗</span></a></div><div className="landing-trust"><span>01 <strong>Provider intake</strong></span><span>02 <strong>Explainable review</strong></span><span>03 <strong>Settlement trace</strong></span></div></div><div className="landing-visual" aria-hidden="true"><div className="visual-top"><span>CLAIM JOURNEY</span><span className="visual-online">●  Connected workflow</span></div><div className="visual-card"><span className="visual-step">01</span><div><strong>Care & coverage</strong><small>Member, policy and authorization</small></div><span>✓</span></div><div className="visual-path" /><div className="visual-card"><span className="visual-step">02</span><div><strong>Claim assessment</strong><small>Rule version, evidence and decision</small></div><span>✓</span></div><div className="visual-path" /><div className="visual-card visual-current"><span className="visual-step">03</span><div><strong>Payment & reconciliation</strong><small>Approved payable to matched receipt</small></div><span>→</span></div><div className="visual-bottom"><span>Provider</span><span>TPA & insurer</span><span>Finance</span></div></div></section>
+    <section className="landing-lower" id="how-it-works"><div><span className="landing-eyebrow">BUILT FOR ACCOUNTABILITY</span><h2>From first eligibility check to final reconciliation.</h2></div><p>Each team sees its own work. Claim decisions should trace to the policy, tariff and evidence in force on the service date.</p></section>
+    <section className="landing-workspaces" id="workspaces"><article><span>01</span><h3>Providers</h3><p>Prepare claims, attach evidence and respond to requests.</p></article><article><span>02</span><h3>Review teams</h3><p>Assess findings, request clarification and resolve disputes.</p></article><article><span>03</span><h3>Insurer finance</h3><p>Record payables, payments and reconciliation outcomes.</p></article></section>
+    <footer className="landing-footer"><span>© Claimwise Health</span><span>Local reference environment · Claim submission is not connected</span></footer>
+  </main>;
 }

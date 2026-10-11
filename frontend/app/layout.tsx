@@ -5,13 +5,13 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Claimwise Health | Claims workspace",
-  description: "Synthetic health insurance claims workflow preview.",
+  description: "Health claims coordination for providers, insurers and administrators.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body><AuthProviders><AppShell>{children}</AppShell></AuthProviders></body>
+      <body><AuthProviders><AppShell identityIssuer={process.env.AUTH_KEYCLOAK_ISSUER ?? ""} identityClientId={process.env.AUTH_KEYCLOAK_ID ?? ""}>{children}</AppShell></AuthProviders></body>
     </html>
   );
 }

@@ -15,8 +15,8 @@ export function Dashboard() {
 
       <div className="notice-banner">
         <span className="notice-icon">i</span>
-        <div><strong>Sample workspace</strong><span>Every figure below comes from synthetic Reference Case 001. Live APIs, sign-in and file upload are not connected.</span></div>
-        <span className="notice-tag">SYNTHETIC</span>
+        <div><strong>Local reference workspace</strong><span>Figures below are for Case 001. Claims and documents are not saved yet.</span></div>
+        <span className="notice-tag">REFERENCE</span>
       </div>
 
       <section className="metric-grid" aria-label="Reference case figures">
