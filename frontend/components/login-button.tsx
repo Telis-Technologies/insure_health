@@ -11,7 +11,7 @@ export function LoginButton({ callbackUrl }: { callbackUrl: string }) {
     setPending(true);
     setError(false);
     try {
-      await signIn("keycloak", { redirectTo: callbackUrl });
+      await signIn("keycloak", { redirectTo: callbackUrl }, { prompt: "login" });
     } catch {
       setError(true);
       setPending(false);
@@ -20,8 +20,8 @@ export function LoginButton({ callbackUrl }: { callbackUrl: string }) {
 
   return <>
     <button className="button button-primary" type="button" disabled={pending} onClick={startSignIn}>
-      {pending ? "Opening Keycloak…" : "Continue with Keycloak"} <span aria-hidden="true">→</span>
+      {pending ? "Opening secure sign-in…" : "Sign in securely"} <span aria-hidden="true">→</span>
     </button>
-    {error && <p role="alert">Could not open Keycloak. Check that it is running on localhost:8080, then try again.</p>}
+    {error && <p role="alert">Could not open secure sign-in. Please try again or contact your administrator.</p>}
   </>;
 }
