@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { AccessManagement } from "@/components/access-management";
 import { useSession } from "next-auth/react";
 import { useMemo, useState } from "react";
 import { case001, demoAuthorizations, demoMembers, demoPolicies, demoProviders, demoTenant, kes, referenceCases, ruleBasis } from "@/lib/demo-data";
@@ -27,7 +28,7 @@ export function WorkspacePage({ slug }: { slug: string[] }) {
   if (section === "settlements") return <Settlements />;
   if (section === "reports") return <Reports />;
   if (section === "audit") return <Audit />;
-  if (section === "access") return <Access />;
+  if (section === "access") return <AccessManagement />;
   return <EmptySection title={title} />;
 }
 
@@ -231,34 +232,5 @@ function Audit() {
     <div className="audit-guidance"><strong>Production audit record should include</strong><span>Actor and organization</span><span>Action and reason</span><span>Claim / rule version</span><span>Event time and source</span></div>
   </>;
 }
-
-function Access() {
-  const localAccounts = [
-    ["lameck", "Lameck", "Organization administrator", "Harbor Health Assurance"],
-    ["grace.wanjiku", "Grace Wanjiku", "Provider billing", "Riverside Medical Centre"],
-    ["joseph.otieno", "Joseph Otieno", "TPA reviewer", "MediBridge Administrators"],
-    ["mercy.kamau", "Mercy Kamau", "Claims adjudicator", "Harbor Health Assurance"],
-    ["peter.mutua", "Peter Mutua", "Claims approver", "Harbor Health Assurance"],
-    ["faith.njeri", "Faith Njeri", "Insurer finance", "Harbor Health Assurance"],
-    ["sarah.wambui", "Sarah Wambui", "Policy author", "Harbor Health Assurance"],
-    ["david.ochieng", "David Ochieng", "Policy approver", "Harbor Health Assurance"],
-    ["naomi.chebet", "Naomi Chebet", "Auditor", "Harbor Health Assurance"],
-    ["felix.mwangi", "Felix Mwangi", "Platform administrator", "Claimwise"],
-  ];
-  const roles = [
-    { role: "Provider biller", actions: "Create and submit own claims · attach supporting evidence · answer correction requests", limit: "Cannot review or approve own claim" },
-    { role: "Insurer / TPA reviewer", actions: "Review authorized claims · inspect findings · request corrections · record decisions", limit: "Approval requires explicit authority" },
-    { role: "Insurer approver", actions: "Approve the exact assessed claim version within assigned authority", limit: "Cannot approve stale or unresolved assessment" },
-    { role: "Insurer finance", actions: "View approved payable · record payment reference · reconcile receipts", limit: "Cannot change claim findings or decision" },
-    { role: "Insurer rule author / approver", actions: "Authorized author drafts; independent insurer-authorized approver publishes", limit: "Approver must differ from author; TPA needs scoped insurer delegation" },
-  ];
-  return <><Heading eyebrow="GOVERNANCE / ACCESS" title="Organizations & roles" subtitle="Access is scoped to an organization and explicit capabilities, then enforced by the API." />
-    <Panel title="Local accounts" kicker="KEYCLOAK REALM"><div className="table-scroll"><table><thead><tr><th>Username</th><th>Name</th><th>Role</th><th>Organization</th></tr></thead><tbody>{localAccounts.map(([username, name, role, organization]) => <tr key={username}><td><strong>{username}</strong></td><td>{name}</td><td>{role}</td><td>{organization}</td></tr>)}</tbody></table></div></Panel>
-    <Panel title="Health network organizations" kicker="CASE 001 · LOCAL REFERENCE"><div className="org-list"><Org name={case001.provider} kind="Provider facility" mark="R" /><Org name={case001.insurer} kind="Insurer · policy owner" mark="H" /><Org name={case001.tpa} kind="TPA administrator" mark="M" /></div></Panel>
-    <Panel title="Role capability boundaries" kicker="PROPOSED ACCESS MATRIX"><div className="table-scroll"><table><thead><tr><th>Role</th><th>Can do</th><th>Guardrail</th></tr></thead><tbody>{roles.map(row => <tr key={row.role}><td><strong>{row.role}</strong></td><td>{row.actions}</td><td>{row.limit}</td></tr>)}</tbody></table></div></Panel>
-    <div className="governance-note access-governance"><span className="governance-icon">⌑</span><div><strong>Who should publish insurer rules?</strong><p>Recommendation: insurer product/benefits owner is accountable; a trained configuration analyst drafts; an independent insurer-authorized approver approves publication. TPA users need an explicit, scoped insurer delegation. Exact job titles and dual-approval policy require insurer sign-off.</p></div></div>
-  </>;
-}
-function Org({ name, kind, mark }: { name: string; kind: string; mark: string }) { return <div className="org-item"><span className="org-avatar">{mark}</span><div><strong>{name}</strong><small>{kind}</small></div><span className="org-scope">Reference party</span></div>; }
 
 function EmptySection({ title }: { title: string }) { return <><Heading eyebrow="HEALTH CLAIMS" title={title} subtitle="This section is part of the approved health claims workflow scaffold." /><PreviewNote>Section data will be supplied by the approved API. No sample values are invented here.</PreviewNote><div className="empty-api-state"><span className="empty-icon">⌕</span><div><strong>Section scaffold ready</strong><p>Connect the approved API contract to display organization-scoped records and actions.</p></div></div></>; }
