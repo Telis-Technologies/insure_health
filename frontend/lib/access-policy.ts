@@ -17,6 +17,7 @@ export function applicationRoles(roles: string[] = []) {
 }
 
 export const routeAccess: Record<string, string[]> = {
+  "/workspace": Object.keys(roleLabels),
   "/admin/tenants": ["platform-admin"],
   "/organization": ["tenant-admin"],
   "/access": ["tenant-admin", "platform-admin"],
@@ -32,6 +33,17 @@ export const routeAccess: Record<string, string[]> = {
   "/settlements": ["insurer-finance"],
   "/reports": ["tpa-reviewer", "insurer-finance"],
 };
+
+export function landingForRoles(roles: string[]) {
+  const granted = applicationRoles(roles);
+  if (granted.includes("platform-admin")) return "/admin/tenants";
+  if (granted.includes("tenant-admin")) return "/organization";
+  if (granted.includes("insurer-finance")) return "/settlements";
+  if (granted.some((role) => ["tpa-reviewer", "insurer-claims-adjudicator", "insurer-claims-approver"].includes(role))) return "/reviews";
+  if (granted.some((role) => ["insurer-policy-author", "insurer-policy-approver"].includes(role))) return "/rules";
+  if (granted.includes("auditor")) return "/audit";
+  return "/claims";
+}
 
 export function rolesForPath(pathname: string) {
   const path = Object.keys(routeAccess)
