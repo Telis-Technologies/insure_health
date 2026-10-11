@@ -43,6 +43,15 @@ for (const wanted of realmConfig.clientScopes) {
 const scopes = await admin("GET", "client-scopes");
 const client = (await admin("GET", "clients?clientId=claimwise-web"))[0];
 if (!client) throw new Error("claimwise-web client is absent from the imported realm.");
+if (client.attributes?.["post.logout.redirect.uris"] !== "http://localhost:3000/*") {
+  await admin("PUT", `clients/${client.id}`, { ...client, attributes: { ...client.attributes, "post.logout.redirect.uris": "http://localhost:3000/*" } });
+  console.log("Configured the local post-logout redirect URI.");
+}
+const realm = await admin("GET", "");
+if (realm.loginTheme !== "claimwise") {
+  await admin("PUT", "", { ...realm, loginTheme: "claimwise" });
+  console.log("Applied Claimwise login theme.");
+}
 const attachedScopes = new Set((await admin("GET", `clients/${client.id}/default-client-scopes`)).map((scope) => scope.id));
 for (const name of ["profile", "email", "roles", "claimwise-tenant-context"]) {
   const scope = scopes.find((candidate) => candidate.name === name);
