@@ -91,7 +91,7 @@ export function kes(value: number) {
 
 export const ruleBasis = [
   { title: "Agreed tariff", detail: "Consultation, CBC and MRI adjustments", version: "Version not supplied by fixture", tone: "blue" },
-  { title: "Authorization ceiling", detail: "MRI brain without contrast · ceiling KES 25,000", version: "AUTH-001 · service date 22 Sep 2026", tone: "violet" },
+  { title: "Authorization ceiling", detail: "MRI brain without contrast · ceiling KES 25,000", version: "AUTH-HHA-001 · service date 22 Sep 2026", tone: "violet" },
   { title: "Duplicate service", detail: "Duplicate CBC line removed once", version: "Rule version not supplied by fixture", tone: "amber" },
   { title: "Excluded service", detail: "Administration fee is not eligible in this case", version: "Rule version not supplied by fixture", tone: "rose" },
 ];

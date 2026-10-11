@@ -472,7 +472,7 @@ th { color: #42584b; }
 td { color: #344b3e; }
 .form-layout { grid-template-columns: minmax(0, 1fr); }
 .form-main { min-width: 0; }
-.form-field input, .tenant-form .form-field input, .tenant-form .form-field select {
+.form-field input, .form-field select, .tenant-form .form-field input, .tenant-form .form-field select {
   min-height: 44px; padding: 9px 12px; color: #263e30; background: #fff; border-color: #b9cbbd;
 }
 .form-field input::placeholder { color: #6f7e73; }

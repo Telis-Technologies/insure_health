@@ -68,6 +68,7 @@ function ClaimIntake() {
   const [authorization, setAuthorization] = useState("");
   const [serviceDate, setServiceDate] = useState("2026-10-10");
   const [encounter, setEncounter] = useState("");
+  const [careSetting, setCareSetting] = useState("Outpatient");
   const [billLines, setBillLines] = useState([{ code: "", description: "", quantity: "1", amount: "" }]);
   const [billFile, setBillFile] = useState<File | null>(null);
   const [message, setMessage] = useState("");
@@ -76,20 +77,25 @@ function ClaimIntake() {
   const policyChoices = useMemo(() => demoPolicies.map((item) => `${item.id} · ${item.name}`), []);
   const authChoices = useMemo(() => demoAuthorizations.map((item) => `${item.id} · ${item.service}`), []);
   const memberId = member.split(" · ")[0];
+  const providerId = provider.split(" · ")[0];
   const selectedMember = demoMembers.find((item) => item.id === memberId);
-  const availableAuthorizations = demoAuthorizations.filter((item) => !memberId || item.memberId === memberId);
+  const selectedProvider = demoProviders.find((item) => item.id === providerId);
+  const availableAuthorizations = demoAuthorizations.filter((item) => (!memberId || item.memberId === memberId) && (!providerId || item.providerId === providerId));
   const availablePolicies = selectedMember ? policyChoices.filter((item) => item.startsWith(`${selectedMember.policyId} ·`)) : policyChoices;
   const submitPreview = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const errors = [
       !memberChoices.includes(member) && "Choose a member from the directory.",
+      selectedMember && selectedMember.status !== "Active" && "Member coverage is not active in the local directory.",
       !availablePolicies.includes(policy) && "Choose a policy valid for the selected member.",
       !providerChoices.includes(provider) && "Choose a contracted provider.",
+      selectedProvider && selectedProvider.status !== "Contracted" && "The selected provider is not contracted.",
       !serviceDate && "Enter the service date.",
       !encounter.trim() && "Enter the facility encounter reference.",
+      careSetting !== "Outpatient" && !authorization && "Select an approved preauthorization for inpatient or maternity care.",
       billLines.some((line) => !line.code.trim() || !line.description.trim() || !Number.isFinite(Number(line.quantity)) || Number(line.quantity) <= 0 || !Number.isFinite(Number(line.amount)) || Number(line.amount) <= 0) && "Complete every bill line with a code, description, quantity and positive amount.",
       !billFile && "Attach a bill document.",
-      authorization && (!authChoices.includes(authorization) || !availableAuthorizations.some((item) => `${item.id} · ${item.service}` === authorization)) && "Choose an authorization for the selected member from the available list or leave it blank.",
+      authorization && (!authChoices.includes(authorization) || !availableAuthorizations.some((item) => `${item.id} · ${item.service}` === authorization && item.status === "Approved")) && "Choose an approved authorization for this member and facility.",
     ].filter(Boolean);
     setMessage(errors.length ? errors.join(" ") : "All required fields are complete. Claim submission is not connected yet; nothing was saved or uploaded.");
   };
@@ -102,10 +108,11 @@ function ClaimIntake() {
           <div className="form-grid">
              <label className="form-field"><span>Member reference *</span><input list="members" value={member} onChange={(event) => { setMember(event.target.value); setPolicy(""); setAuthorization(""); }} placeholder="Search member ID or name" required /><datalist id="members">{memberChoices.map((choice) => <option key={choice} value={choice} />)}</datalist></label>
             <label className="form-field"><span>Policy · selected member&apos;s policy</span><input list="demo-policies" value={policy} onChange={(event) => setPolicy(event.target.value)} placeholder="Search policy" required /><datalist id="demo-policies">{availablePolicies.map((choice) => <option key={choice} value={choice} />)}</datalist></label>
-            <label className="form-field"><span>Provider facility · search or choose</span><input list="demo-providers" value={provider} onChange={(event) => setProvider(event.target.value)} placeholder="Type facility ID or name" required /><datalist id="demo-providers">{providerChoices.map((choice) => <option key={choice} value={choice} />)}</datalist></label>
+            <label className="form-field"><span>Provider facility *</span><input list="demo-providers" value={provider} onChange={(event) => { setProvider(event.target.value); setAuthorization(""); }} placeholder="Search facility ID or name" required /><datalist id="demo-providers">{providerChoices.map((choice) => <option key={choice} value={choice} />)}</datalist></label>
             <label className="form-field"><span>Service date</span><input type="date" value={serviceDate} onChange={(event) => setServiceDate(event.target.value)} required /></label>
              <label className="form-field"><span>Encounter reference *</span><input value={encounter} onChange={(event) => setEncounter(event.target.value)} placeholder="Facility encounter ID" required /></label>
-            <label className="form-field"><span>Preauthorization · optional</span><input list="demo-authorizations" value={authorization} onChange={(event) => setAuthorization(event.target.value)} placeholder="Search authorization or leave blank" /><datalist id="demo-authorizations">{availableAuthorizations.map((item) => <option key={item.id} value={`${item.id} · ${item.service}`} />)}</datalist></label>
+            <label className="form-field"><span>Care setting *</span><select value={careSetting} onChange={(event) => setCareSetting(event.target.value)}><option>Outpatient</option><option>Inpatient</option><option>Maternity</option></select></label>
+            <label className="form-field"><span>Preauthorization {careSetting === "Outpatient" ? "(if applicable)" : "*"}</span><input list="demo-authorizations" value={authorization} onChange={(event) => setAuthorization(event.target.value)} placeholder="Search approved authorization" required={careSetting !== "Outpatient"} /><datalist id="demo-authorizations">{availableAuthorizations.filter((item) => item.status === "Approved").map((item) => <option key={item.id} value={`${item.id} · ${item.service}`} />)}</datalist></label>
           </div>
         </Panel>
         <Panel title="Bill lines" kicker="STEP 2 · SERVICES">
@@ -170,7 +177,7 @@ function Providers() {
 function Authorizations() {
   return <><Heading eyebrow="HEALTH RECORDS / AUTHORIZATIONS" title="Authorizations" subtitle="Service-specific preauthorization requests, decisions, ceilings and evidence." action={<DisabledAction>＋ New request</DisabledAction>} />
     <PreviewNote>Request and review screens are scaffolded. Submission and decision actions remain unavailable until API and access controls are connected.</PreviewNote>
-    <Panel title="AUTH-001" kicker="REFERENCE AUTHORIZATION"><div className="record-heading"><span className="record-symbol violet-symbol">◉</span><div><strong>MRI brain without contrast</strong><span>{case001.member} · {case001.provider}</span></div><span className="status-pill status-reference">Fixture only</span></div><div className="context-grid contract-grid"><Context label="Member policy" value={case001.policy} /><Context label="Encounter" value="22 Sep 2026" /><Context label="Service date validity" value="22 Sep 2026" /><Context label="Approved ceiling" value={kes(25000)} /><Context label="Decision actor / time" value="Not supplied" /><Context label="Evidence reference" value="AUTH-001" /></div><div className="inline-callout"><span>ⓘ</span><p>Authorization supports the assessment but is not a blanket guarantee that every billed item will be paid.</p></div></Panel>
+    <Panel title={case001.authorization} kicker="REFERENCE AUTHORIZATION"><div className="record-heading"><span className="record-symbol violet-symbol">◉</span><div><strong>MRI brain without contrast</strong><span>{case001.member} · {case001.provider}</span></div><span className="status-pill status-reference">Approved reference</span></div><div className="context-grid contract-grid"><Context label="Member policy" value={case001.policy} /><Context label="Encounter" value="22 Sep 2026" /><Context label="Service date validity" value="22 Sep 2026" /><Context label="Approved ceiling" value={kes(25000)} /><Context label="Decision actor / time" value="Not supplied" /><Context label="Evidence reference" value={case001.authorization} /></div></Panel>
   </>;
 }
 
