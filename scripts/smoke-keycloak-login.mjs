@@ -62,16 +62,18 @@ const session = await sessionResponse.json();
 if (!session.user?.roles?.includes(expectedRole)) {
   throw new Error(`Authenticated session has no ${expectedRole} role: ${JSON.stringify(session.user)}`);
 }
-if (expectedRole !== "platform-admin" && !session.user?.tenantIds?.includes("demo-health-insurer")) {
-  throw new Error(`Authenticated session has no demo tenant: ${JSON.stringify(session.user)}`);
+if (expectedRole !== "platform-admin" && !session.user?.tenantIds?.includes("harbor-health-assurance")) {
+  throw new Error(`Authenticated session has no Harbor Health tenant: ${JSON.stringify(session.user)}`);
 }
 const home = await request("/");
 if (home.status !== 200) throw new Error(`Authenticated home returned ${home.status}`);
-const forbiddenPath = expectedRole === "insurer-finance" ? "/claims/new" : expectedRole === "provider-biller" || expectedRole === "tpa-reviewer" ? "/settlements" : null;
-if (forbiddenPath) {
+const authorizedPath = expectedRole === "tenant-admin" ? "/organization" : expectedRole === "insurer-finance" ? "/settlements" : expectedRole === "provider-biller" ? "/claims/new" : expectedRole === "tpa-reviewer" ? "/reviews" : null;
+if (authorizedPath && (await request(authorizedPath)).status !== 200) throw new Error(`${expectedRole} could not access ${authorizedPath}`);
+const forbiddenPaths = expectedRole === "tenant-admin" ? ["/reviews", "/settlements", "/claims/new"] : expectedRole === "insurer-finance" ? ["/claims/new", "/reviews"] : expectedRole === "provider-biller" ? ["/settlements", "/reviews"] : expectedRole === "tpa-reviewer" ? ["/settlements", "/claims/new"] : [];
+for (const forbiddenPath of forbiddenPaths) {
   const forbidden = await request(forbiddenPath);
   if (![302, 307].includes(forbidden.status) || !forbidden.headers.get("location")?.endsWith("/forbidden")) {
     throw new Error(`${expectedRole} was not denied access to ${forbiddenPath}: ${forbidden.status}`);
   }
 }
-console.log(`Sign-in passed: ${username} (${expectedRole}) -> home 200${forbiddenPath ? `; ${forbiddenPath} denied` : ""}`);
+console.log(`Sign-in passed: ${username} (${expectedRole}) -> home 200${authorizedPath ? `; ${authorizedPath} allowed` : ""}${forbiddenPaths.length ? `; ${forbiddenPaths.join(", ")} denied` : ""}`);
