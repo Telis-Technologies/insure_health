@@ -43,10 +43,10 @@
       "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": false,
       "serviceAccountsEnabled": false,
-      "redirectUris": ["http://localhost:3000/api/auth/callback/keycloak"],
-      "webOrigins": ["http://localhost:3000"],
+      "redirectUris": ["http://localhost:3000/api/auth/callback/keycloak", "http://localhost:3001/api/auth/callback/keycloak"],
+      "webOrigins": ["http://localhost:3000", "http://localhost:3001"],
       "defaultClientScopes": ["profile", "email", "roles", "claimwise-tenant-context"],
-      "attributes": { "pkce.code.challenge.method": "S256", "post.logout.redirect.uris": "http://localhost:3000/*" },
+      "attributes": { "pkce.code.challenge.method": "S256", "post.logout.redirect.uris": "http://localhost:3000/*##http://localhost:3001/*" },
       "protocolMappers": [
         { "name": "Audience Claimwise API", "protocol": "openid-connect", "protocolMapper": "oidc-audience-mapper", "consentRequired": false, "config": { "included.client.audience": "claimwise-api", "id.token.claim": "false", "access.token.claim": "true", "included.custom.audience": "claimwise-api" } }
       ]

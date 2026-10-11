@@ -25,7 +25,7 @@ async function request(url, options = {}) {
 const csrfResponse = await request("/api/auth/csrf");
 if (!csrfResponse.ok) throw new Error(`Auth.js CSRF endpoint returned ${csrfResponse.status}`);
 const { csrfToken } = await csrfResponse.json();
-const start = await request("/api/auth/signin/keycloak", {
+const start = await request("/api/auth/signin/keycloak?prompt=login", {
   method: "POST",
   headers: { "content-type": "application/x-www-form-urlencoded" },
   body: new URLSearchParams({ csrfToken, callbackUrl: "http://localhost:3000/" }),
@@ -33,6 +33,9 @@ const start = await request("/api/auth/signin/keycloak", {
 const authorizationUrl = start.headers.get("location");
 if (start.status !== 302 || !authorizationUrl?.includes("/realms/claimwise/protocol/openid-connect/auth")) {
   throw new Error(`Auth.js did not redirect to Keycloak: ${start.status}`);
+}
+if (new URL(authorizationUrl).searchParams.get("prompt") !== "login") {
+  throw new Error("The sign-in flow must require account selection after a prior SSO session.");
 }
 
 const loginPage = await request(authorizationUrl);
@@ -76,4 +79,34 @@ for (const forbiddenPath of forbiddenPaths) {
     throw new Error(`${expectedRole} was not denied access to ${forbiddenPath}: ${forbidden.status}`);
   }
 }
-console.log(`Sign-in passed: ${username} (${expectedRole}) -> home 200${authorizedPath ? `; ${authorizedPath} allowed` : ""}${forbiddenPaths.length ? `; ${forbiddenPaths.join(", ")} denied` : ""}`);
+const signoutCsrf = await (await request("/api/auth/csrf")).json();
+const signedOut = await request("/api/auth/signout", {
+  method: "POST",
+  headers: { "content-type": "application/x-www-form-urlencoded" },
+  body: new URLSearchParams({ csrfToken: signoutCsrf.csrfToken, callbackUrl: "http://localhost:3000/login?logged_out=1" }),
+});
+if (![200, 302, 303].includes(signedOut.status)) throw new Error(`Auth.js sign-out failed: ${signedOut.status}`);
+const afterSignout = await (await request("/api/auth/session")).json();
+if (afterSignout?.user) throw new Error("Auth.js retained the previous user's session after sign-out.");
+for (const port of [3000, 3001]) {
+  const logout = new URL("http://localhost:8080/realms/claimwise/protocol/openid-connect/logout");
+  logout.searchParams.set("client_id", "claimwise-web");
+  logout.searchParams.set("post_logout_redirect_uri", `http://localhost:${port}/login?logged_out=1`);
+  const response = await request(logout);
+  const html = await response.text();
+  if (response.status >= 400 || html.includes("Invalid redirect uri")) {
+    throw new Error(`Keycloak rejected the local post-logout redirect for port ${port}: ${response.status}`);
+  }
+  if (port === 3000 && html.includes('id="kc-logout-confirm"')) {
+    const action = html.match(/<form[^>]*class="form-actions"[^>]*action="([^"]+)"/s)?.[1];
+    const sessionCode = html.match(/name="session_code" value="([^"]+)"/)?.[1];
+    if (!action || !sessionCode) throw new Error("Keycloak logout confirmation was incomplete.");
+    const confirmed = await request(action.replaceAll("&amp;", "&"), {
+      method: "POST",
+      headers: { "content-type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ session_code: sessionCode, confirmLogout: "Log out" }),
+    });
+    if (![200, 302, 303, 307].includes(confirmed.status)) throw new Error(`Keycloak did not finish logout: ${confirmed.status}`);
+  }
+}
+console.log(`Sign-in and sign-out passed: ${username} (${expectedRole}); role access and local logout redirects accepted`);
