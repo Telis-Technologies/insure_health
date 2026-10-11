@@ -4,7 +4,7 @@ import { applicationRoles, rolesForPath } from "./lib/access-policy";
 
 export default auth((request) => {
   const { pathname, search } = request.nextUrl;
-  if (pathname === "/login" || pathname.startsWith("/api/auth/")) return NextResponse.next();
+  if (pathname === "/" || pathname === "/login" || pathname.startsWith("/api/auth/")) return NextResponse.next();
   if (!request.auth?.user) {
     const login = new URL("/login", request.nextUrl);
     login.searchParams.set("callbackUrl", `${pathname}${search}`);
