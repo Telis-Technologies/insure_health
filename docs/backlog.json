@@ -99,7 +99,7 @@
   {
     "id": "T05",
     "owner": "Lameck",
-    "title": "Set up Next.js shell and shared API client",
+    "title": "Scaffold local health claims frontend and shared API client",
     "requirement_ids": [
       "FR01",
       "NF04",
@@ -107,15 +107,14 @@
     ],
     "task_dependencies": [],
     "decision_dependencies": [
-      "D03",
-      "D11"
+      "D03"
     ],
     "target_days": [
       "D1",
       "D2"
     ],
-    "completion_evidence": "Existing five-screen navigation represented in Next.js; approved client/error contracts; feature disclosure.",
-    "status": "PLANNED",
+    "completion_evidence": "Health-only navigation and workflow shell; REST/OpenAPI client boundary; synthetic Case 001 disclosure; explicit unavailable states; local setup instructions. Deployment remains D11.",
+    "status": "IN_PROGRESS",
     "assignment_status": "ASSIGNED_IN_THIS_PLAN"
   },
   {

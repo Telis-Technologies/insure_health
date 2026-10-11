@@ -54,5 +54,19 @@
     "subject": "Claim fixture",
     "value": "Reference Case 001 and its amounts are fictional demonstration facts",
     "source": "Established case and final strategy page 1"
+  },
+  {
+    "id": "C09",
+    "status": "CONFIRMED",
+    "subject": "Current product scope",
+    "value": "Health insurance only. Motor, livestock and other insurance lines are outside this product scope.",
+    "source": "Lameck clarification on 10 October 2026"
+  },
+  {
+    "id": "C10",
+    "status": "CONFIRMED_FOR_FRONTEND_SCAFFOLD",
+    "subject": "Initial frontend slice",
+    "value": "Provider claim intake and evidence; member, policy, benefit, provider and authorization views; versioned policy and rule catalogue; explainable review and provider correction/dispute; exact-version approval; simulated payment and reconciliation; audit and operational reporting. Synthetic Case 001 only. History/consent, OCR, AI/anomaly scoring, biometrics, WhatsApp and USSD are deferred from this slice.",
+    "source": "Lameck approval on 10 October 2026"
   }
 ]
