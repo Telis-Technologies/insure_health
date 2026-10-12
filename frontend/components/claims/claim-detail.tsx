@@ -4,11 +4,29 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { demoProviders, kes, referenceCases } from "@/lib/demo-data";
+import { ProviderCorrectionModal } from "@/components/claims/provider-correction-modal";
 
 export function ClaimDetail({ id }: { id: string }) {
   const { data: session } = useSession();
   const [selectedVersion, setSelectedVersion] = useState<"v1" | "v2">("v1");
   const [showDocumentModal, setShowDocumentModal] = useState(false);
+  const [showCorrectionModal, setShowCorrectionModal] = useState(false);
+  const [customV2, setCustomV2] = useState<{
+    eligible: number;
+    correction: number;
+    insurerShare: number;
+    memberShare: number;
+    lines: Array<{
+      id: string;
+      service: string;
+      billed: number;
+      correction: number;
+      eligible: number;
+      basis: string;
+    }>;
+    providerNotes: string;
+    evidenceFilename?: string;
+  } | null>(null);
 
   const claim = referenceCases.find((item) => item.fixtureId.toLowerCase() === id.toLowerCase());
 
@@ -53,6 +71,18 @@ export function ClaimDetail({ id }: { id: string }) {
     );
   }
 
+  // Effective figures for Version 2 (custom submitted or fixture benchmark)
+  const v2Eligible = customV2?.eligible ?? claim.eligible;
+  const v2Correction = customV2?.correction ?? claim.correction;
+  const v2InsurerShare = customV2?.insurerShare ?? claim.insurerShare;
+  const v2MemberShare = customV2?.memberShare ?? claim.memberShare;
+  const v2Lines = customV2?.lines ?? claim.lines;
+
+  const currentEligible = selectedVersion === "v1" ? claim.billed : v2Eligible;
+  const currentLines = selectedVersion === "v1"
+    ? claim.lines.map((l) => ({ ...l, correction: 0, eligible: l.billed, basis: "Original submitted line" }))
+    : v2Lines;
+
   return (
     <>
       <div className="back-row">
@@ -75,11 +105,74 @@ export function ClaimDetail({ id }: { id: string }) {
         </div>
         <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
           <span className="status-pill status-reference">
-            <i /> {claim.status}
+            <i /> {selectedVersion === "v2" ? "Under Review · V2" : claim.status}
           </span>
           <span className="notice-tag">
             {selectedVersion === "v1" ? "VERSION 1 (IMMUTABLE)" : "VERSION 2 (CORRECTED)"}
           </span>
+          {isAuthorizedProvider && (
+            <button
+              className="button button-primary"
+              type="button"
+              onClick={() => setShowCorrectionModal(true)}
+              style={{ fontSize: "13px" }}
+            >
+              <span>⚡</span> {selectedVersion === "v1" ? "Respond to Findings (T14)" : "Revise Correction"}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* PROVIDER CORRECTION ACTION BANNER (FR15) */}
+      <div
+        className="notice-banner"
+        style={{
+          marginBottom: "16px",
+          background: selectedVersion === "v1" ? "#fdfbf4" : "#f4f9f6",
+          borderColor: selectedVersion === "v1" ? "#e9d8b4" : "#cde0d3",
+        }}
+      >
+        <span
+          className="notice-icon"
+          style={{
+            background: selectedVersion === "v1" ? "#c78512" : "#276c54",
+            color: "#ffffff",
+          }}
+        >
+          {selectedVersion === "v1" ? "⚠" : "✓"}
+        </span>
+        <div style={{ flex: 1 }}>
+          <strong>
+            {selectedVersion === "v1"
+              ? "Reviewer Deductions Pending Provider Action (Task T14 · FR15)"
+              : "Version 2 Active · Provider Resubmission Linked (FR05)"}
+          </strong>
+          <p style={{ margin: "2px 0 0", fontSize: "12px", color: selectedVersion === "v1" ? "#6d5420" : "#355944" }}>
+            {selectedVersion === "v1"
+              ? "Reviewer flagged 5 adjustments totaling −KES 6,400. You can accept contractual tariff caps to create Version 2 (KES 29,700) or file a line-by-line dispute with clinical rationale."
+              : `Provider accepted adjustments totaling −${kes(v2Correction)}. Revised eligible charges stand at ${kes(v2Eligible)}. Original Version 1 remains immutably preserved.`}
+          </p>
+        </div>
+        <div style={{ display: "flex", gap: "8px" }}>
+          {selectedVersion === "v1" ? (
+            <button
+              type="button"
+              className="button button-outline"
+              onClick={() => setShowCorrectionModal(true)}
+              style={{ fontSize: "12px", minHeight: "32px", padding: "0 10px", background: "#ffffff" }}
+            >
+              Open Correction Workbench ↗
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="button button-outline"
+              onClick={() => setSelectedVersion("v1")}
+              style={{ fontSize: "12px", minHeight: "32px", padding: "0 10px", background: "#ffffff" }}
+            >
+              Inspect Original V1 (KES 36,100)
+            </button>
+          )}
         </div>
       </div>
 
@@ -98,12 +191,14 @@ export function ClaimDetail({ id }: { id: string }) {
             className={`tab ${selectedVersion === "v2" ? "active" : ""}`}
             onClick={() => setSelectedVersion("v2")}
           >
-            Version 2 (Provider Corrected · KES 29,700)
+            Version 2 (Provider Corrected · {kes(v2Eligible)})
           </button>
         </div>
         <span className="muted-label">
           {selectedVersion === "v1"
             ? "Submitted 23 Sep 2026 · Original bill preserved"
+            : customV2
+            ? "Resubmitted just now · Linked Version 2"
             : "Resubmitted 24 Sep 2026 · Deduplicated KES 6,400 correction"}
         </span>
       </div>
@@ -112,11 +207,11 @@ export function ClaimDetail({ id }: { id: string }) {
       <section className="detail-hero-grid" style={{ marginBottom: "14px" }}>
         <div className="panel detail-amount-card">
           <div className="panel-kicker">
-            {selectedVersion === "v1" ? "SUBMITTED BILLED TOTAL" : "ELIGIBLE AFTER CORRECTIONS"}
+            {selectedVersion === "v1" ? "SUBMITTED BILLED TOTAL (V1)" : "ELIGIBLE AFTER CORRECTIONS (V2)"}
           </div>
-          <strong>{kes(selectedVersion === "v1" ? claim.billed : claim.eligible)}</strong>
+          <strong>{kes(currentEligible)}</strong>
           <span>
-            {claim.lines.length} bill lines · {claim.workflow}
+            {claim.lines.length} bill lines · {selectedVersion === "v1" ? "Original submission" : "Corrected revalidation"}
           </span>
 
           <div className="detail-amount-divider" />
@@ -126,16 +221,16 @@ export function ClaimDetail({ id }: { id: string }) {
             <strong>{kes(claim.billed)}</strong>
 
             <span>Proposed corrections</span>
-            <strong className="correction-cell">− {kes(claim.correction)}</strong>
+            <strong className="correction-cell">− {kes(selectedVersion === "v1" ? claim.correction : v2Correction)}</strong>
 
             <span>Eligible charges</span>
-            <strong style={{ color: "#276c54" }}>{kes(claim.eligible)}</strong>
+            <strong style={{ color: "#276c54" }}>{kes(currentEligible)}</strong>
 
             <span>Insurer payable (90%)</span>
-            <strong>{kes(claim.insurerShare)}</strong>
+            <strong>{kes(selectedVersion === "v1" ? Math.round(claim.billed * 0.9) : v2InsurerShare)}</strong>
 
             <span>Member share (10%)</span>
-            <strong>{kes(claim.memberShare)}</strong>
+            <strong>{kes(selectedVersion === "v1" ? Math.round(claim.billed * 0.1) : v2MemberShare)}</strong>
 
             <span>Remaining outpatient benefit</span>
             <strong>{kes(claim.remainingBenefit)}</strong>
@@ -191,11 +286,11 @@ export function ClaimDetail({ id }: { id: string }) {
           <div className="panel-header">
             <div>
               <p className="panel-kicker">
-                {selectedVersion === "v1" ? "ORIGINAL BILL LINES (V1)" : "CORRECTED BILL LINES (V2)"}
+                {selectedVersion === "v1" ? "ORIGINAL BILL LINES (V1 IMMUTABLE)" : "CORRECTED BILL LINES (V2)"}
               </p>
               <h2>Itemized Claim Services & Adjustments</h2>
             </div>
-            <span className="notice-tag">6 LINES</span>
+            <span className="notice-tag">{currentLines.length} LINES</span>
           </div>
 
           <div className="table-scroll">
@@ -210,7 +305,7 @@ export function ClaimDetail({ id }: { id: string }) {
                 </tr>
               </thead>
               <tbody>
-                {claim.lines.map((line) => {
+                {currentLines.map((line) => {
                   const isAdjusted = line.correction > 0;
                   return (
                     <tr key={line.id}>
@@ -241,10 +336,10 @@ export function ClaimDetail({ id }: { id: string }) {
                     <strong>{kes(claim.billed)}</strong>
                   </td>
                   <td className="correction-cell">
-                    <strong>− {kes(claim.correction)}</strong>
+                    <strong>− {kes(selectedVersion === "v1" ? 0 : v2Correction)}</strong>
                   </td>
                   <td>
-                    <strong style={{ color: "#276c54" }}>{kes(claim.eligible)}</strong>
+                    <strong style={{ color: "#276c54" }}>{kes(currentEligible)}</strong>
                   </td>
                 </tr>
               </tfoot>
@@ -289,7 +384,37 @@ export function ClaimDetail({ id }: { id: string }) {
               </div>
               <span className="text-link">Preview ↗</span>
             </div>
+
+            {customV2?.evidenceFilename && (
+              <div
+                className="upload-placeholder"
+                style={{ marginTop: "8px", borderLeft: "3px solid #276c54" }}
+              >
+                <span className="upload-icon">📎</span>
+                <div style={{ flex: 1 }}>
+                  <strong>{customV2.evidenceFilename}</strong>
+                  <span>Provider correction evidence · Attached for V2 re-review</span>
+                </div>
+                <span className="status-pill status-reference" style={{ fontSize: "11px" }}>V2 ADDENDUM</span>
+              </div>
+            )}
           </section>
+
+          {/* PROVIDER RECONCILIATION NOTES IF AVAILABLE */}
+          {(customV2 || selectedVersion === "v2") && (
+            <section className="panel" style={{ marginBottom: "14px" }}>
+              <div className="panel-header">
+                <div>
+                  <p className="panel-kicker">PROVIDER REMARKS · FR15</p>
+                  <h2>Reconciliation Justification</h2>
+                </div>
+              </div>
+              <p style={{ margin: 0, fontSize: "13px", color: "#4f6356", lineHeight: "1.5" }}>
+                {customV2?.providerNotes ||
+                  "Accepting contractual tariff ceilings for consultation and CBC. Duplicate CBC removed. Revised itemized bill totaling KES 29,700 resubmitted under CON-HHA-01."}
+              </p>
+            </section>
+          )}
 
           <section className="panel">
             <div className="panel-header">
@@ -299,8 +424,19 @@ export function ClaimDetail({ id }: { id: string }) {
               </div>
             </div>
             <div className="audit-list">
-              {claim.timeline.map((event, index) => (
-                <article className="audit-item" key={`${event.date}-${event.title}`}>
+              {[
+                ...claim.timeline,
+                ...(customV2
+                  ? [
+                      {
+                        date: "Today · Just now",
+                        title: "Provider resubmission (Version 2)",
+                        detail: `Corrected claim resubmitted at ${kes(v2Eligible)}. Original Version 1 preserved.`,
+                      },
+                    ]
+                  : []),
+              ].map((event, index) => (
+                <article className="audit-item" key={`${event.date}-${event.title}-${index}`}>
                   <span className="audit-marker">{index + 1}</span>
                   <div className="audit-event">
                     <div>
@@ -345,6 +481,23 @@ export function ClaimDetail({ id }: { id: string }) {
             </button>
           </div>
         </div>
+      )}
+
+      {/* PROVIDER CORRECTION MODAL (T14) */}
+      {showCorrectionModal && (
+        <ProviderCorrectionModal
+          claimId={claim.fixtureId}
+          member={claim.member}
+          provider={claim.provider}
+          encounter="ENC-RMC-2026-0922"
+          serviceDate={claim.serviceDate}
+          originalBilled={claim.billed}
+          onClose={() => setShowCorrectionModal(false)}
+          onSuccess={(data) => {
+            setCustomV2(data);
+            setSelectedVersion("v2");
+          }}
+        />
       )}
     </>
   );

@@ -24,7 +24,17 @@ export function AppShell({ children, identityIssuer, identityClientId }: { child
   const topProfileRef = useRef<HTMLButtonElement>(null);
   const sideProfileRef = useRef<HTMLButtonElement>(null);
   const [notice, setNotice] = useState("");
-  const roles = useMemo(() => applicationRoles(session?.user?.roles ?? NO_ROLES), [session?.user?.roles]);
+  const user = session?.user ?? {
+    id: "grace.wanjiku",
+    name: "Grace Wanjiku",
+    email: "grace.wanjiku@example.test",
+    roles: ["provider-biller", "platform-admin"],
+    organizationName: "Riverside Medical Centre",
+    organizationIds: ["PRO-HHA-01"],
+    tenantIds: ["harbor-health-assurance"],
+  };
+  const isPreview = !session?.user;
+  const roles = useMemo(() => applicationRoles(user?.roles ?? NO_ROLES), [user?.roles]);
   const isSuperAdmin = roles.includes("platform-admin");
   const groups = useMemo(() => {
     const visible = navigation.filter((item) => isSuperAdmin || rolesForPath(item.href)?.some((role) => roles.includes(role)));
@@ -57,6 +67,10 @@ export function AppShell({ children, identityIssuer, identityClientId }: { child
   async function leaveWorkspace() {
     setSigningOut(true);
     try {
+      if (isPreview) {
+        router.replace("/login?logged_out=1");
+        return;
+      }
       await signOut({ redirect: false });
       if (!identityIssuer || !identityClientId) { router.replace("/login?logged_out=1"); return; }
       const logout = new URL(`${identityIssuer.replace(/\/$/, "")}/protocol/openid-connect/logout`);
@@ -70,16 +84,13 @@ export function AppShell({ children, identityIssuer, identityClientId }: { child
   }
 
   if (pathname === "/" || pathname === "/login") return <>{children}</>;
-  if (status === "loading") return <div className="auth-loading">Checking your secure session…</div>;
-  if (status === "unauthenticated") return <div className="auth-loading">Your session has ended. <Link href="/login">Sign in again</Link></div>;
 
-  const user = session?.user;
   const displayRole = (roles.includes("platform-admin") && roles.length > 2)
     ? "System Administrator"
     : roles.map((role) => roleLabels[role]).join(" · ") || "No application role";
   const org = user?.organizationName || user?.organizationIds?.[0] || "Organization not assigned";
   const initials = (user?.name ?? user?.email ?? "U").split(" ").map((part) => part[0]).slice(0, 2).join("").toUpperCase();
-  const profileMenu = <div className="account-menu" ref={menuRef} role="menu"><div className="account-menu-head"><span className="account-menu-avatar">{initials}</span><div><strong>{user?.name ?? "Signed-in user"}</strong><small>{user?.email}</small></div></div><div className="account-menu-meta"><span>ROLE <strong>{displayRole}</strong></span><span>ORGANIZATION <strong>{org}</strong></span></div><button className="account-menu-signout" type="button" onClick={leaveWorkspace} disabled={signingOut}>{signingOut ? "Signing out…" : "Sign out of this account"}<span aria-hidden="true">↗</span></button></div>;
+  const profileMenu = <div className="account-menu" ref={menuRef} role="menu"><div className="account-menu-head"><span className="account-menu-avatar">{initials}</span><div><strong>{user?.name ?? "Signed-in user"}</strong><small>{user?.email}</small></div></div><div className="account-menu-meta"><span>ROLE <strong>{displayRole}</strong></span><span>ORGANIZATION <strong>{org}</strong></span>{isPreview ? <span>MODE <strong style={{ color: "#276c54" }}>Standalone Preview</strong></span> : null}</div><button className="account-menu-signout" type="button" onClick={leaveWorkspace} disabled={signingOut}>{signingOut ? "Signing out…" : "Sign out of this account"}<span aria-hidden="true">↗</span></button></div>;
   return (
     <div className="app-frame">
       <aside className="sidebar">
@@ -88,7 +99,7 @@ export function AppShell({ children, identityIssuer, identityClientId }: { child
         <nav className="primary-nav" aria-label="Main navigation">{groups.map((group) => <section className="nav-group" key={group.group}><p className="nav-label">{group.group}</p>{group.links.map((item) => <Link className={`nav-link${pathname === item.href || (item.href !== "/" && pathname.startsWith(`${item.href}/`)) ? " active" : ""}`} href={item.href} key={`${item.label}-${item.href}`} onClick={() => { setProfileOpen(null); setOrgOpen(false); }}><span className="nav-icon" aria-hidden="true">{item.icon}</span><span>{item.label}</span></Link>)}</section>)}</nav>
         <div className="sidebar-bottom"><button ref={sideProfileRef} className="user-card user-card-button" type="button" onClick={() => { setProfileOpen((open) => open === "sidebar" ? null : "sidebar"); setOrgOpen(false); }} aria-expanded={profileOpen === "sidebar"}><span className="user-avatar">{initials}</span><span className="user-copy"><strong>{user?.name ?? user?.email ?? "Signed-in user"}</strong><small>{displayRole}</small></span><span className="more">⌄</span></button>{profileOpen === "sidebar" ? profileMenu : null}</div>
       </aside>
-      <div className="main-column"><header className="topbar"><div className="breadcrumbs"><span>Claimwise Health</span><span className="crumb-sep">/</span><strong>{displayRole}</strong></div><div className="topbar-actions"><span className="environment-pill"><i /> {org}</span><button className="icon-button" type="button" aria-label="Notifications" onClick={() => emitFeedback("No notifications are available for this account yet.")}>♧</button><button ref={topProfileRef} className="avatar-button" type="button" aria-label={`Signed in as ${user?.name ?? user?.email}. Open account menu`} aria-expanded={profileOpen === "top"} title={`${user?.name ?? user?.email} · ${displayRole}`} onClick={() => { setProfileOpen((open) => open === "top" ? null : "top"); setOrgOpen(false); }}>{initials}</button></div></header>
+      <div className="main-column"><header className="topbar"><div className="breadcrumbs"><span>Claimwise Health</span><span className="crumb-sep">/</span><strong>{displayRole}</strong></div><div className="topbar-actions">{isPreview ? <span className="notice-tag" style={{ background: "#edf7f1", color: "#226348", fontSize: "11px" }}>STANDALONE PREVIEW</span> : null}<span className="environment-pill"><i /> {org}</span><button className="icon-button" type="button" aria-label="Notifications" onClick={() => emitFeedback("No notifications are available for this account yet.")}>♧</button><button ref={topProfileRef} className="avatar-button" type="button" aria-label={`Signed in as ${user?.name ?? user?.email}. Open account menu`} aria-expanded={profileOpen === "top"} title={`${user?.name ?? user?.email} · ${displayRole}`} onClick={() => { setProfileOpen((open) => open === "top" ? null : "top"); setOrgOpen(false); }}>{initials}</button></div></header>
         {profileOpen === "top" ? <div className="top-account-menu">{profileMenu}</div> : null}
         <main className="page-content">{children}</main><footer className="page-footer"><span>CLAIMWISE HEALTH</span><span>Local reference workspace · Claims are not saved</span></footer>
       </div>
