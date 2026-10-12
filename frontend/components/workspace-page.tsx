@@ -52,11 +52,12 @@ function RecordCard({ label, title, subtitle, rows }: { label: string; title: st
 
 function ClaimsList() {
   const { data: session } = useSession();
+  const isSuper = session?.user?.roles?.includes("platform-admin");
   const isProvider = session?.user?.roles?.includes("provider-biller");
   const providerIds = session?.user?.organizationIds ?? [];
-  const visibleCases = isProvider ? referenceCases.filter((claim) => demoProviders.some((provider) => provider.name === claim.provider && providerIds.includes(provider.id))) : referenceCases;
+  const visibleCases = isProvider && !isSuper ? referenceCases.filter((claim) => demoProviders.some((provider) => provider.name === claim.provider && providerIds.includes(provider.id))) : referenceCases;
   return <>
-    <Heading eyebrow="WORKSPACE / CLAIMS" title="Claims" subtitle="Submitted health claims, their current review state and supporting evidence." action={isProvider ? <Link className="button button-primary" href="/claims/new">＋ New claim</Link> : undefined} />
+    <Heading eyebrow="WORKSPACE / CLAIMS" title="Claims" subtitle="Submitted health claims, their current review state and supporting evidence." action={isProvider || isSuper ? <Link className="button button-primary" href="/claims/new">＋ New claim</Link> : undefined} />
     <Panel title="Claim register" kicker={`${visibleCases.length} REFERENCE CASES`}>
       <div className="table-scroll"><table><thead><tr><th>Claim</th><th>Member / policy</th><th>Provider</th><th>Service date</th><th>Billed</th><th>Status</th></tr></thead>
         <tbody>{visibleCases.map((claim) => <tr key={claim.fixtureId}><td><Link className="table-primary-link" href={`/claims/${claim.fixtureId.toLowerCase()}`}>Case {claim.fixtureId.slice(-3)} <span>↗</span></Link><small className="table-sub">{claim.workflow}</small></td><td>{claim.member}<small className="table-sub">{claim.policy}</small></td><td>{claim.provider}</td><td>{claim.serviceDate}</td><td className="money-cell">{kes(claim.billed)}</td><td><span className="status-pill status-reference">{claim.status}</span></td></tr>)}</tbody>

@@ -25,10 +25,11 @@ export function AppShell({ children, identityIssuer, identityClientId }: { child
   const sideProfileRef = useRef<HTMLButtonElement>(null);
   const [notice, setNotice] = useState("");
   const roles = useMemo(() => applicationRoles(session?.user?.roles ?? NO_ROLES), [session?.user?.roles]);
+  const isSuperAdmin = roles.includes("platform-admin");
   const groups = useMemo(() => {
-    const visible = navigation.filter((item) => rolesForPath(item.href)?.some((role) => roles.includes(role)));
+    const visible = navigation.filter((item) => isSuperAdmin || rolesForPath(item.href)?.some((role) => roles.includes(role)));
     return [...new Set(visible.map((item) => item.group))].map((group) => ({ group, links: visible.filter((item) => item.group === group) }));
-  }, [roles]);
+  }, [roles, isSuperAdmin]);
   useEffect(() => {
     const show = (event: Event) => {
       setNotice((event as CustomEvent<string>).detail);
@@ -73,7 +74,9 @@ export function AppShell({ children, identityIssuer, identityClientId }: { child
   if (status === "unauthenticated") return <div className="auth-loading">Your session has ended. <Link href="/login">Sign in again</Link></div>;
 
   const user = session?.user;
-  const displayRole = roles.map((role) => roleLabels[role]).join(" · ") || "No application role";
+  const displayRole = (roles.includes("platform-admin") && roles.length > 2)
+    ? "System Administrator"
+    : roles.map((role) => roleLabels[role]).join(" · ") || "No application role";
   const org = user?.organizationName || user?.organizationIds?.[0] || "Organization not assigned";
   const initials = (user?.name ?? user?.email ?? "U").split(" ").map((part) => part[0]).slice(0, 2).join("").toUpperCase();
   const profileMenu = <div className="account-menu" ref={menuRef} role="menu"><div className="account-menu-head"><span className="account-menu-avatar">{initials}</span><div><strong>{user?.name ?? "Signed-in user"}</strong><small>{user?.email}</small></div></div><div className="account-menu-meta"><span>ROLE <strong>{displayRole}</strong></span><span>ORGANIZATION <strong>{org}</strong></span></div><button className="account-menu-signout" type="button" onClick={leaveWorkspace} disabled={signingOut}>{signingOut ? "Signing out…" : "Sign out of this account"}<span aria-hidden="true">↗</span></button></div>;

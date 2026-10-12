@@ -36,6 +36,7 @@ export const routeAccess: Record<string, string[]> = {
 
 export function landingForRoles(roles: string[]) {
   const granted = applicationRoles(roles);
+  if (granted.includes("platform-admin") && (granted.includes("tenant-admin") || granted.length > 2)) return "/claims";
   if (granted.includes("platform-admin")) return "/admin/tenants";
   if (granted.includes("tenant-admin")) return "/organization";
   if (granted.includes("insurer-finance")) return "/settlements";
@@ -49,7 +50,8 @@ export function rolesForPath(pathname: string) {
   const path = Object.keys(routeAccess)
     .sort((left, right) => right.length - left.length)
     .find((candidate) => pathname === candidate || pathname.startsWith(`${candidate}/`));
-  return path ? routeAccess[path] : undefined;
+  if (!path) return undefined;
+  return [...routeAccess[path], "platform-admin"];
 }
 
 export const navigation = [

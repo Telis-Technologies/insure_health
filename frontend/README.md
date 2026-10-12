@@ -12,6 +12,7 @@ Use these local Keycloak accounts to inspect separate workspaces:
 
 | Username | Workspace |
 | --- | --- |
+| `Admin` | System Administrator (full access to all workspaces & views) |
 | `lameck` | Harbor Health Assurance organization administration |
 | `grace.wanjiku` | Riverside Medical Centre provider billing |
 | `joseph.otieno` | MediBridge TPA review |
