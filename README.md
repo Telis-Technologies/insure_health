@@ -80,6 +80,41 @@ Every module's `models.py` is imported in `alembic/env.py`, so autogenerate sees
 Review generated migrations by hand before committing. `alembic check` reports drift between
 models and the database.
 
+## Backend access (T06)
+
+Keycloak is the identity provider (D04, 2026-10-12). The backend never issues tokens or stores
+passwords. Callers send the Keycloak access token as `Authorization: Bearer <token>`. The
+backend checks the RS256 signature against the realm keys, the expiry, the issuer
+(`http://localhost:${KEYCLOAK_PORT}/realms/claimwise`) and the audience (`claimwise-api`).
+`docker-compose.yml` sets these as `KEYCLOAK_ISSUER`, `KEYCLOAK_JWKS_URL` and `KEYCLOAK_AUDIENCE`.
+
+- **Roles** come from the token's `realm_access.roles`: Lameck's 10 realm roles plus `patient`.
+  The **permissions** each role grants are stored in Postgres (`0003_access_seed`) and read on
+  every request.
+- **Organizations:** a user's single `organization_ids` entry must be registered as a tenant
+  (`external_id`) by the platform admin. Unregistered organizations get 403. A role only counts
+  when its organization type matches (insurer, hospital or tpa).
+- **TPA scope** comes from `tpa_delegations`, not from the token's `tenant_ids`.
+- **Revocation:** permission changes and organization disables apply on the next request.
+  Removing a role or disabling a user in Keycloak applies when the token expires (Keycloak
+  default: 5 minutes).
+
+The platform admin (`platform-admin`, no data permissions) manages organizations, TPA delegations,
+role permissions and patient-member links through `/api/v1/admin/*`. Users and role assignments
+are managed in Keycloak.
+
+Other modules protect each endpoint with both checks from `app.modules.access`:
+
+```python
+principal = Depends(require_permission("claims:approve"))          # 401/403
+await services.ensure_in_scope(session, principal, claim, "Claim")  # 404 if out of scope
+select(Claim).where(services.scope_clause(principal, Claim.insurer_tenant_id,
+                                          Claim.provider_tenant_id, Claim.member_id))
+```
+
+Check permission codes, never role names. `history:read` and `consent:manage` are granted to no
+role while D07 is deferred; `services.ensure_history_access` refuses every request until T17.
+
 ## Run
 
 The `backend` service runs `uvicorn app.main:app --reload` on `http://127.0.0.1:${API_PORT}`.
@@ -94,6 +129,11 @@ docker compose logs -f backend
 ```sh
 docker compose exec backend pytest
 ```
+
+Access tests use a real Postgres database, `<POSTGRES_DB>_test` on the same server. They
+create it and migrate it to head on first run. Each test runs in a transaction that is rolled
+back afterwards. Tokens are Keycloak-shaped and signed with a throwaway RSA key; the tests do
+not need Keycloak running.
 
 ## Inspect the database
 
@@ -115,14 +155,21 @@ The Keycloak demo identities can be recreated with `scripts/repair-keycloak-dev.
 
 ## Known limitations
 
-- Scaffolding only: no business endpoints or rules exist. The baseline migration
-  (`0001_baseline`) creates nothing. Proposed tables live in
+- Only access endpoints (auth and platform administration) exist; no claims, coverage,
+  settlement, reporting or history endpoints yet. Proposed tables live in
   [`db/schema/001_initial.sql`](db/schema/001_initial.sql) and [`docs/erd.md`](docs/erd.md)
   for D03/D05 review. Alembic does not apply that file.
 - **Open: Postgres schema strategy** (per-module schemas vs one default schema) is for
   Tristan/Brian to decide. Everything uses the default `public` schema for now; see TODOs in
   `backend/app/shared/base.py` and `backend/alembic/env.py`.
-- Still open: exact tenant membership/organization grants and backend enforcement (D04), hosting and deployment (D11), API contract and error
+- Access limitations: `tpa-reviewer` has no `payments:read` or `reports:read` (open in D04),
+  so the frontend `/reports` page gets 403 from the API for TPA users. Keycloak role removal
+  applies at token expiry. `patient_member_links.member_id` has no FK until the coverage
+  members table exists (T07). `audit_events` is a minimal table added by T06.
+- The `patient` realm role is in `infra/keycloak/claimwise-realm.json`. `--import-realm` skips
+  an existing realm, so an existing Keycloak volume needs the role added in the admin console,
+  or `docker compose down -v` to re-import.
+- Still open: exact tenant membership/organization grants (D04), hosting and deployment (D11), API contract and error
   envelope (T03), money column details beyond "integer minor units + currency" (D03).
 - `GET /health` is a liveness check only; it does not query the database.
 - The compose setup is for local development (`--reload`, bind-mounted source). It is not a
