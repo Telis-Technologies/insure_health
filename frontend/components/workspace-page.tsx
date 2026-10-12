@@ -5,6 +5,9 @@ import { AccessManagement } from "@/components/access-management";
 import { useSession } from "next-auth/react";
 import { useMemo, useState } from "react";
 import { case001, demoAuthorizations, demoMembers, demoPolicies, demoProviders, demoTenant, kes, referenceCases, ruleBasis } from "@/lib/demo-data";
+import { ClaimIntake } from "@/components/claims/claim-intake";
+import { ClaimDetail } from "@/components/claims/claim-detail";
+import { AuthorizationNew } from "@/components/authorizations/authorization-new";
 
 const pageNames: Record<string, string> = {
   claims: "Claims", members: "Members", policies: "Policies & benefits", providers: "Provider network",
@@ -22,6 +25,7 @@ export function WorkspacePage({ slug }: { slug: string[] }) {
   if (section === "members") return <Members />;
   if (section === "policies") return <Policies />;
   if (section === "providers") return <Providers />;
+  if (section === "authorizations" && slug[1] === "new") return <AuthorizationNew />;
   if (section === "authorizations") return <Authorizations />;
   if (section === "rules") return <Rules />;
   if (section === "reviews") return <Reviews />;
@@ -61,99 +65,6 @@ function ClaimsList() {
   </>;
 }
 
-function ClaimIntake() {
-  const { data: session } = useSession();
-  const [member, setMember] = useState("");
-  const [policy, setPolicy] = useState("");
-  const [provider, setProvider] = useState("");
-  const [authorization, setAuthorization] = useState("");
-  const [serviceDate, setServiceDate] = useState("2026-10-10");
-  const [encounter, setEncounter] = useState("");
-  const [careSetting, setCareSetting] = useState("Outpatient");
-  const [billLines, setBillLines] = useState([{ code: "", description: "", quantity: "1", amount: "" }]);
-  const [billFile, setBillFile] = useState<File | null>(null);
-  const [message, setMessage] = useState("");
-  const memberChoices = useMemo(() => demoMembers.map((item) => `${item.id} · ${item.name}`), []);
-  const providerChoices = demoProviders.filter((item) => session?.user?.organizationIds?.includes(item.id)).map((item) => `${item.id} · ${item.name}`);
-  const policyChoices = useMemo(() => demoPolicies.map((item) => `${item.id} · ${item.name}`), []);
-  const authChoices = useMemo(() => demoAuthorizations.map((item) => `${item.id} · ${item.service}`), []);
-  const memberId = member.split(" · ")[0];
-  const providerId = provider.split(" · ")[0];
-  const selectedMember = demoMembers.find((item) => item.id === memberId);
-  const selectedProvider = demoProviders.find((item) => item.id === providerId);
-  const availableAuthorizations = demoAuthorizations.filter((item) => (!memberId || item.memberId === memberId) && (!providerId || item.providerId === providerId));
-  const availablePolicies = selectedMember ? policyChoices.filter((item) => item.startsWith(`${selectedMember.policyId} ·`)) : policyChoices;
-  const submitPreview = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const errors = [
-      !memberChoices.includes(member) && "Choose a member from the directory.",
-      selectedMember && selectedMember.status !== "Active" && "Member coverage is not active in the local directory.",
-      !availablePolicies.includes(policy) && "Choose a policy valid for the selected member.",
-      !providerChoices.includes(provider) && "Choose a contracted provider.",
-      selectedProvider && selectedProvider.status !== "Contracted" && "The selected provider is not contracted.",
-      !serviceDate && "Enter the service date.",
-      !encounter.trim() && "Enter the facility encounter reference.",
-      careSetting !== "Outpatient" && !authorization && "Select an approved preauthorization for inpatient or maternity care.",
-      billLines.some((line) => !line.code.trim() || !line.description.trim() || !Number.isFinite(Number(line.quantity)) || Number(line.quantity) <= 0 || !Number.isFinite(Number(line.amount)) || Number(line.amount) <= 0) && "Complete every bill line with a code, description, quantity and positive amount.",
-      !billFile && "Attach a bill document.",
-      authorization && (!authChoices.includes(authorization) || !availableAuthorizations.some((item) => `${item.id} · ${item.service}` === authorization && item.status === "Approved")) && "Choose an approved authorization for this member and facility.",
-    ].filter(Boolean);
-    setMessage(errors.length ? errors.join(" ") : "All required fields are complete. Claim submission is not connected yet; nothing was saved or uploaded.");
-  };
-  return <>
-    <Heading eyebrow="WORKSPACE / CLAIMS / NEW" title="Start a claim" subtitle="Create a structured provider submission with the member, service and evidence details." action={<Link className="button button-outline" href="/claims">← Back to claims</Link>} />
-    <div className="form-layout">
-      <div className="form-main">
-        <form onSubmit={submitPreview} noValidate>
-        <Panel title="Claim details" kicker="STEP 1 · MEMBER & ENCOUNTER">
-          <div className="form-grid">
-             <label className="form-field"><span>Member reference *</span><input list="members" value={member} onChange={(event) => { setMember(event.target.value); setPolicy(""); setAuthorization(""); }} placeholder="Search member ID or name" required /><datalist id="members">{memberChoices.map((choice) => <option key={choice} value={choice} />)}</datalist></label>
-            <label className="form-field"><span>Policy · selected member&apos;s policy</span><input list="demo-policies" value={policy} onChange={(event) => setPolicy(event.target.value)} placeholder="Search policy" required /><datalist id="demo-policies">{availablePolicies.map((choice) => <option key={choice} value={choice} />)}</datalist></label>
-            <label className="form-field"><span>Provider facility *</span><input list="demo-providers" value={provider} onChange={(event) => { setProvider(event.target.value); setAuthorization(""); }} placeholder="Search facility ID or name" required /><datalist id="demo-providers">{providerChoices.map((choice) => <option key={choice} value={choice} />)}</datalist></label>
-            <label className="form-field"><span>Service date</span><input type="date" value={serviceDate} onChange={(event) => setServiceDate(event.target.value)} required /></label>
-             <label className="form-field"><span>Encounter reference *</span><input value={encounter} onChange={(event) => setEncounter(event.target.value)} placeholder="Facility encounter ID" required /></label>
-            <label className="form-field"><span>Care setting *</span><select value={careSetting} onChange={(event) => setCareSetting(event.target.value)}><option>Outpatient</option><option>Inpatient</option><option>Maternity</option></select></label>
-            <label className="form-field"><span>Preauthorization {careSetting === "Outpatient" ? "(if applicable)" : "*"}</span><input list="demo-authorizations" value={authorization} onChange={(event) => setAuthorization(event.target.value)} placeholder="Search approved authorization" required={careSetting !== "Outpatient"} /><datalist id="demo-authorizations">{availableAuthorizations.filter((item) => item.status === "Approved").map((item) => <option key={item.id} value={`${item.id} · ${item.service}`} />)}</datalist></label>
-          </div>
-        </Panel>
-        <Panel title="Bill lines" kicker="STEP 2 · SERVICES">
-           <div className="table-scroll"><table><thead><tr><th>Service code *</th><th>Description *</th><th>Qty *</th><th>Amount (KES) *</th><th /></tr></thead><tbody>{billLines.map((line, index) => <tr key={index}><td><input aria-label={`Service code ${index + 1}`} value={line.code} onChange={(event) => setBillLines((rows) => rows.map((row, i) => i === index ? { ...row, code: event.target.value } : row))} required /></td><td><input aria-label={`Description ${index + 1}`} value={line.description} onChange={(event) => setBillLines((rows) => rows.map((row, i) => i === index ? { ...row, description: event.target.value } : row))} required /></td><td><input className="number-input" type="number" min="1" aria-label={`Quantity ${index + 1}`} value={line.quantity} onChange={(event) => setBillLines((rows) => rows.map((row, i) => i === index ? { ...row, quantity: event.target.value } : row))} required /></td><td><input className="amount-input" type="number" min="0.01" step="0.01" aria-label={`Amount ${index + 1}`} value={line.amount} onChange={(event) => setBillLines((rows) => rows.map((row, i) => i === index ? { ...row, amount: event.target.value } : row))} required /></td><td><button type="button" aria-label={`Remove bill line ${index + 1}`} className="button button-muted" disabled={billLines.length === 1} onClick={() => setBillLines((rows) => rows.filter((_, i) => i !== index))}>Remove</button></td></tr>)}</tbody></table></div>
-           <button className="button button-outline" type="button" onClick={() => setBillLines((rows) => [...rows, { code: "", description: "", quantity: "1", amount: "" }])}>＋ Add bill line</button>
-        </Panel>
-        <Panel title="Supporting documents" kicker="STEP 3 · EVIDENCE">
-           <label className="form-field"><span>Bill document *</span><input type="file" accept=".pdf,image/png,image/jpeg" onChange={(event) => setBillFile(event.target.files?.[0] ?? null)} required /></label>
-           {billFile ? <p className="form-helper">Selected: {billFile.name}. The file stays in your browser; it is not uploaded.</p> : null}
-        </Panel>
-        <div className="form-actions"><button className="button button-primary" type="submit">Validate claim details</button></div>
-        {message ? <p role="status" className="form-helper">{message}</p> : null}
-        </form>
-      </div>
-    </div>
-  </>;
-}
-
-function ClaimDetail({ id }: { id: string }) {
-  const { data: session } = useSession();
-  const claim = referenceCases.find((item) => item.fixtureId.toLowerCase() === id);
-  if (!claim) return <><Heading eyebrow="CLAIMS" title="Claim not found" subtitle="This claim reference is not in the local register." /><Link href="/claims">← Back to claims</Link></>;
-  if (session?.user?.roles?.includes("provider-biller") && !demoProviders.some((provider) => provider.name === claim.provider && session.user.organizationIds?.includes(provider.id))) return <><Heading eyebrow="CLAIMS" title="Claim not found" subtitle="This claim is outside your provider organization." /><Link href="/claims">← Back to claims</Link></>;
-  return <>
-    <div className="back-row"><Link href="/claims">← Claims</Link><span>/</span><span>{claim.fixtureId}</span></div>
-    <Heading eyebrow="CLAIM DETAIL · LOCAL REFERENCE" title={`Case ${claim.fixtureId.slice(-3)}`} subtitle={`${claim.member} · ${claim.policy} · ${claim.serviceDate}`} action={<span className="status-pill status-reference">{claim.status}</span>} />
-    <section className="detail-hero-grid">
-      <div className="panel detail-amount-card"><div className="panel-kicker">BILLED AMOUNT</div><strong>{kes(claim.billed)}</strong><span>Provider bill · {claim.lines.length} lines</span><div className="detail-amount-divider" /><div className="hero-pairs"><span>Eligible so far</span><strong>{kes(claim.eligible)}</strong><span>Insurer share</span><strong>{kes(claim.insurerShare)}</strong><span>Member share</span><strong>{kes(claim.memberShare)}</strong></div></div>
-      <div className="panel"><div className="panel-header"><div><p className="panel-kicker">PARTIES & COVERAGE</p><h2>Claim context</h2></div></div><div className="context-grid"><Context label="Member" value={claim.member} /><Context label="Insurer" value={claim.insurer} /><Context label="Provider" value={claim.provider} /><Context label="TPA" value={claim.tpa} /><Context label="Policy" value={claim.policy} /><Context label="Provider contract" value={claim.contract} /><Context label="Authorization" value={claim.authorization} /><Context label="Service date" value={claim.serviceDate} /></div></div>
-    </section>
-    <div className="two-column-stack">
-      <Panel title="Submitted bill lines" kicker="REFERENCE VALUES">
-        <div className="table-scroll"><table><thead><tr><th>Line</th><th>Service</th><th>Billed</th><th>Correction</th><th>Eligible</th></tr></thead><tbody>{claim.lines.map((line) => <tr key={line.id}><td><span className="line-id">{line.id}</span></td><td>{line.service}<small className="table-sub">{line.basis}</small></td><td className="money-cell">{kes(line.billed)}</td><td className={line.correction ? "money-cell correction-cell" : "money-cell"}>{line.correction ? `− ${kes(line.correction)}` : "—"}</td><td className="money-cell">{kes(line.eligible)}</td></tr>)}</tbody><tfoot><tr><td colSpan={2}>Total</td><td>{kes(claim.billed)}</td><td>− {kes(claim.correction)}</td><td>{kes(claim.eligible)}</td></tr></tfoot></table></div>
-      </Panel>
-      <Panel title="Case progression" kicker="REFERENCE TIMELINE">
-        <div className="audit-list">{claim.timeline.map((event, index) => <article className="audit-item" key={`${event.date}-${event.title}`}><span className="audit-marker">{index + 1}</span><div className="audit-event"><div><strong>{event.title}</strong><span className="audit-date">{event.date}</span></div><p>{event.detail}</p></div></article>)}</div>
-      </Panel>
-    </div>
-  </>;
-}
 function Context({ label, value }: { label: string; value: string }) { return <div className="context-item"><span>{label}</span><strong>{value}</strong></div>; }
 
 function Members() {
@@ -176,8 +87,8 @@ function Providers() {
 }
 
 function Authorizations() {
-  return <><Heading eyebrow="HEALTH RECORDS / AUTHORIZATIONS" title="Authorizations" subtitle="Service-specific preauthorization requests, decisions, ceilings and evidence." action={<DisabledAction>＋ New request</DisabledAction>} />
-    <PreviewNote>Request and review screens are scaffolded. Submission and decision actions remain unavailable until API and access controls are connected.</PreviewNote>
+  return <><Heading eyebrow="HEALTH RECORDS / AUTHORIZATIONS" title="Authorizations" subtitle="Service-specific preauthorization requests, decisions, ceilings and evidence." action={<Link className="button button-primary" href="/authorizations/new">＋ New request</Link>} />
+    <PreviewNote>Prior authorization request and ceiling matching are enabled for Task T09. Submissions link to service-date tariffs and claim encounters.</PreviewNote>
     <Panel title={case001.authorization} kicker="REFERENCE AUTHORIZATION"><div className="record-heading"><span className="record-symbol violet-symbol">◉</span><div><strong>MRI brain without contrast</strong><span>{case001.member} · {case001.provider}</span></div><span className="status-pill status-reference">Approved reference</span></div><div className="context-grid contract-grid"><Context label="Member policy" value={case001.policy} /><Context label="Encounter" value="22 Sep 2026" /><Context label="Service date validity" value="22 Sep 2026" /><Context label="Approved ceiling" value={kes(25000)} /><Context label="Decision actor / time" value="Not supplied" /><Context label="Evidence reference" value={case001.authorization} /></div></Panel>
   </>;
 }
