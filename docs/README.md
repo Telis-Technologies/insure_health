@@ -9,7 +9,9 @@ One week. Full strategy demonstration. Next.js + TypeScript, FastAPI and Postgre
 Resolve Day 1 decision bookmarks before dependent implementation. D01 calendar/capacity, D02 demo modes, D03 shared conventions/contract, D04 access, D05 schema/fixtures, D06 finance, D07 history, D08 reporting inputs and D12 acceptance require explicit answers. D09-D11 govern selected advanced features/integrations/deployment; D13-D14 govern pilot commitments and real data. Do not invent answers.
 
 ## Files
-- erd.md: proposed v0.1 entity-relationship diagram. DDL is in `db/schema/001_initial.sql`. Pending D03/D05.
+- ARTIFACTS_INDEX.md: master technical index and requirements traceability register (Silas).
+- erd.md: proposed v0.1 entity-relationship diagram and table inventory. DDL is in `db/schema/001_initial.sql`. Pending D03/D05.
+- contracts/openapi.yaml: frozen API contract v0.1 (OpenAPI 3.1.0) and Case 001 examples in `contracts/examples/`. Pending D03.
 - BRD.md: business scope and reference case.
 - SRS.md: software requirements and proposed API catalogue.
 - WORK_PLAN.md: named tasks, seven-day sequence and bookmarks.

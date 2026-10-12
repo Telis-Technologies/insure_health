@@ -21,4 +21,20 @@ Implementation recommendation for the remaining D15 role design: make an insurer
 
 Reference points for that recommendation: Guidewire describes assigning API roles to callers and selecting effective product editions; Salesforce documents a permission set for creating product underwriting rules; NIST describes separation of duties as dividing critical tasks across roles. These are examples of implementation patterns, not a universal insurance job-title standard: [Guidewire API roles](https://docs.guidewire.com/cloud/pc/202511/cloudapica/cloudAPI/topics/703-AuthImplement/02-endpoint-access/c_assigning-API-roles-to-callers.html), [Guidewire effective-dated editions](https://docs.guidewire.com/cloud/apd/olos/create/topics/c_editions.html), [Salesforce underwriting rules](https://help.salesforce.com/s/articleView?id=ind.insurance_admin_product_underwriting_rules.htm&language=en_US&type=5), [NIST separation of duties](https://csrc.nist.gov/glossary/term/separation_of_duty), and [NIST SP 800-128](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-128.pdf).
 
+## 2026-10-12 — Silas (Documentation Lead)
+
+Silas recorded receipt of the schema and contract deliverables submitted by Tristan/Brian for review and completed the master artifact index in [`docs/ARTIFACTS_INDEX.md`](ARTIFACTS_INDEX.md):
+
+- Delivered artifacts:
+  - `db/schema/001_initial.sql`: 34 tables, 20 enums, row-version triggers, indexes, and PostgreSQL 16+ constraints.
+  - `docs/erd.md`: Entity relationship diagram, table inventory, domain grouping, and reviewer notes.
+  - `contracts/openapi.yaml`: OpenAPI 3.1.0 contract covering 16 endpoints with `bearerAuth` security, money minor units in KES, and domain schemas.
+  - `contracts/examples/case-001-request.json` & `contracts/examples/case-001-response.json`: Case 001 claim submission payload (6 lines) and validation/settlement response (4 findings, KES 6,400 correction, KES 29,700 eligible, KES 2,970 member share, KES 26,730 insurer share).
+- Traceability & status:
+  - D03 (Technical conventions and API freeze) remains **OPEN** pending cross-team review between backend (Tristan/Brian, Obunde) and frontend (Ingrid, Lameck). The contract is frozen at v0.1 as a shared baseline.
+  - D05 (Data schema and fixture extension) remains **OPEN** pending confirmation of field-level coding and provider mappings.
+  - Requirements mapping: FR01–FR30, NF01–NF06, and BR01–BR05 are mapped to specific database tables and API endpoints in `docs/ARTIFACTS_INDEX.md`.
+  - Acceptance tests AT01 through AT14 are indexed and mapped to corresponding contract and schema evidence.
+
 For each new answer record decision ID, exact answer, answering person, date, affected requirements/tasks, contract changes and evidence. Do not close OPEN entries without an answer.
+

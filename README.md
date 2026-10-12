@@ -16,7 +16,7 @@ Project scope, requirements, decisions and tasks live in [docs/](docs/). Start w
 | `contracts/` | OpenAPI contract (produced by T03) |
 | `fixtures/` | Approved synthetic fixtures, copied unchanged from the agent pack (nulls mean unknown) |
 | `db/schema/` | Proposed PostgreSQL DDL (`001_initial.sql`), pending D03/D05. Alembic does not apply it |
-| `docs/` | BRD, SRS, work plan, decisions, requirements, backlog, acceptance tests, ERD |
+| `docs/` | BRD, SRS, work plan, decisions, requirements, backlog, acceptance tests, ERD, and master [ARTIFACTS_INDEX.md](docs/ARTIFACTS_INDEX.md) |
 | `frontend/` | Owned by Ingrid/Lameck |
 
 ## Prerequisites
