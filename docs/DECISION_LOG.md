@@ -21,6 +21,21 @@ Implementation recommendation for the remaining D15 role design: make an insurer
 
 Reference points for that recommendation: Guidewire describes assigning API roles to callers and selecting effective product editions; Salesforce documents a permission set for creating product underwriting rules; NIST describes separation of duties as dividing critical tasks across roles. These are examples of implementation patterns, not a universal insurance job-title standard: [Guidewire API roles](https://docs.guidewire.com/cloud/pc/202511/cloudapica/cloudAPI/topics/703-AuthImplement/02-endpoint-access/c_assigning-API-roles-to-callers.html), [Guidewire effective-dated editions](https://docs.guidewire.com/cloud/apd/olos/create/topics/c_editions.html), [Salesforce underwriting rules](https://help.salesforce.com/s/articleView?id=ind.insurance_admin_product_underwriting_rules.htm&language=en_US&type=5), [NIST separation of duties](https://csrc.nist.gov/glossary/term/separation_of_duty), and [NIST SP 800-128](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-128.pdf).
 
+## 2026-10-10 — Obunde (D03 backend conventions; recorded 2026-10-13)
+
+**Answer (D03, partial, Obunde, 2026-10-10)**, given in the T04 task brief:
+
+- Python 3.12 and PostgreSQL 16, with dependencies in a plain `backend/requirements.txt` with pinned versions.
+- SQLAlchemy 2.x in async mode with the asyncpg driver (installed: SQLAlchemy 2.1.4), and Alembic configured for async.
+- One migration history shared by all backend developers (`backend/alembic/versions/`).
+- Module layers `models.py`, `dtos.py`, `services.py` and `controllers.py`. There is no separate `api.py`: `controllers.py` holds the FastAPI router and endpoints.
+- A `GET /health` route. Agent-pack docs are copied into `docs/` and fixtures into `fixtures/`.
+- Everything runs through Docker Compose; nothing is installed on a developer's host machine.
+
+**Affected:** T04 (implemented to this answer), and every later backend task (shared conventions).
+
+**Still OPEN in D03:** Postgres schema per module vs one default schema (Tristan/Brian decides; the default `public` schema is used for now); API paths, response schemas and error envelope (T03); money column details beyond "integer minor units plus currency".
+
 ## 2026-10-12 — Obunde (D04 conflict)
 
 **Conflict found.** D04 had two incompatible answers:
