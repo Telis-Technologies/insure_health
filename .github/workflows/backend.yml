@@ -1,0 +1,76 @@
+# Backend CI (T25): migrations and tests against a real PostgreSQL 16.
+# Deployment is not configured here; it is blocked on D11 (hosting) and D12 (acceptance).
+name: backend
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backend-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: backend
+
+    services:
+      postgres:
+        image: postgres:16
+        # Throwaway credentials for an ephemeral CI container; not a secret.
+        env:
+          POSTGRES_DB: claimwise
+          POSTGRES_USER: claimwise
+          POSTGRES_PASSWORD: ci-only-password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U claimwise -d claimwise"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql+asyncpg://claimwise:ci-only-password@localhost:5432/claimwise
+      # Tests sign tokens with a throwaway key and patch the JWKS lookup, so Keycloak is not needed.
+      KEYCLOAK_ISSUER: http://localhost:8080/realms/claimwise
+      KEYCLOAK_JWKS_URL: http://localhost:8080/realms/claimwise/protocol/openid-connect/certs
+      KEYCLOAK_AUDIENCE: claimwise-api
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Migrate to head
+        run: alembic upgrade head
+
+      - name: Check models match migrations
+        run: alembic check
+
+      - name: Downgrade and re-upgrade
+        run: |
+          alembic downgrade base
+          alembic upgrade head
+
+      - name: Run tests
+        run: pytest -v
