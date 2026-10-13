@@ -6,7 +6,7 @@ export const instant = false;
 
 export default async function WorkspaceEntry() {
   const session = await auth();
-  if (!session?.user) redirect("/login");
+  if (!session?.user) redirect("/claims");
   if (applicationRoles(session.user.roles ?? []).length === 0) redirect("/forbidden");
   redirect(landingForRoles(session.user.roles ?? []));
 }

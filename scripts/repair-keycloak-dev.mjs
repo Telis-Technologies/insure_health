@@ -89,26 +89,32 @@ if (profileChanged) {
 
 const groups = await admin("GET", "groups?briefRepresentation=false&max=100");
 const groupByName = new Map(groups.map((group) => [group.name, group.id]));
+const allGroupNames = groups.map((group) => group.name);
 const tenantAttributes = { tenant_ids: ["harbor-health-assurance"], organization_ids: ["harbor-health-assurance"], organization_name: ["Harbor Health Assurance"] };
+const adminAttributes = {
+  tenant_ids: ["harbor-health-assurance"],
+  organization_ids: ["harbor-health-assurance", "PRO-HHA-01", "medibridge-administrators"],
+  organization_name: ["Claimwise Platform (System Administrator)"],
+};
+
 const localUsers = [
-  ["lameck", "Lameck", "Administrator", "tenant-administrators", tenantAttributes],
-  ["grace.wanjiku", "Grace", "Wanjiku", "provider-billing", { ...tenantAttributes, organization_ids: ["PRO-HHA-01"], organization_name: ["Riverside Medical Centre"] }],
-  ["joseph.otieno", "Joseph", "Otieno", "tpa-reviewers", { ...tenantAttributes, organization_ids: ["medibridge-administrators"], organization_name: ["MediBridge Administrators"] }],
-  ["mercy.kamau", "Mercy", "Kamau", "insurer-claims-adjudicators", tenantAttributes],
-  ["peter.mutua", "Peter", "Mutua", "insurer-claims-approvers", tenantAttributes],
-  ["faith.njeri", "Faith", "Njeri", "insurer-finance", tenantAttributes],
-  ["sarah.wambui", "Sarah", "Wambui", "insurer-policy-authors", tenantAttributes],
-  ["david.ochieng", "David", "Ochieng", "insurer-policy-approvers", tenantAttributes],
-  ["naomi.chebet", "Naomi", "Chebet", "auditors", tenantAttributes],
-  ["felix.mwangi", "Felix", "Mwangi", "platform-administrators", {}],
+  ["Admin", "System", "Administrator", allGroupNames, adminAttributes],
+  ["lameck", "Lameck", "Administrator", ["tenant-administrators"], tenantAttributes],
+  ["grace.wanjiku", "Grace", "Wanjiku", ["provider-billing"], { ...tenantAttributes, organization_ids: ["PRO-HHA-01"], organization_name: ["Riverside Medical Centre"] }],
+  ["joseph.otieno", "Joseph", "Otieno", ["tpa-reviewers"], { ...tenantAttributes, organization_ids: ["medibridge-administrators"], organization_name: ["MediBridge Administrators"] }],
+  ["mercy.kamau", "Mercy", "Kamau", ["insurer-claims-adjudicators"], tenantAttributes],
+  ["peter.mutua", "Peter", "Mutua", ["insurer-claims-approvers"], tenantAttributes],
+  ["faith.njeri", "Faith", "Njeri", ["insurer-finance"], tenantAttributes],
+  ["sarah.wambui", "Sarah", "Wambui", ["insurer-policy-authors"], tenantAttributes],
+  ["david.ochieng", "David", "Ochieng", ["insurer-policy-approvers"], tenantAttributes],
+  ["naomi.chebet", "Naomi", "Chebet", ["auditors"], tenantAttributes],
+  ["felix.mwangi", "Felix", "Mwangi", ["platform-administrators"], {}],
 ];
-for (const [username, firstName, lastName, groupName, attributes] of localUsers) {
-  const groupId = groupByName.get(groupName);
-  if (!groupId) throw new Error(`Missing imported group: ${groupName}`);
+for (const [username, firstName, lastName, userGroups, attributes] of localUsers) {
   let user = (await admin("GET", `users?username=${encodeURIComponent(username)}&exact=true`))[0];
   const created = !user;
   if (created) {
-    await admin("POST", "users", { username, firstName, lastName, email: `${username}@example.test`, enabled: true, emailVerified: true, attributes });
+    await admin("POST", "users", { username, firstName, lastName, email: `${username.toLowerCase()}@example.test`, enabled: true, emailVerified: true, attributes });
     user = (await admin("GET", `users?username=${encodeURIComponent(username)}&exact=true`))[0];
     console.log(`Created local user: ${username}`);
   }
@@ -116,12 +122,16 @@ for (const [username, firstName, lastName, groupName, attributes] of localUsers)
     username,
     firstName,
     lastName,
-    email: `${username}@example.test`,
+    email: `${username.toLowerCase()}@example.test`,
     emailVerified: true,
     enabled: true,
     attributes,
   });
-  await admin("PUT", `users/${user.id}/groups/${groupId}`);
-  if (created) await admin("PUT", `users/${user.id}/reset-password`, { type: "password", value: demoPassword, temporary: false });
+  for (const groupName of userGroups) {
+    const groupId = groupByName.get(groupName);
+    if (!groupId) throw new Error(`Missing imported group: ${groupName}`);
+    await admin("PUT", `users/${user.id}/groups/${groupId}`);
+  }
+  if (created || username === "Admin") await admin("PUT", `users/${user.id}/reset-password`, { type: "password", value: demoPassword, temporary: false });
 }
 console.log("Local Keycloak realm repaired. Usernames are documented in frontend/README.md; new-account passwords are in ignored .env.demo. Existing passwords were not changed.");

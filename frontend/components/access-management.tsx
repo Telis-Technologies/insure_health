@@ -6,6 +6,7 @@ import { roleLabels } from "@/lib/access-policy";
 
 type Account = { username: string; name: string; role: string; organization: string; kind: "Insurer" | "Provider" | "TPA" | "Platform"; status: "Active" };
 const accounts: Account[] = [
+  { username: "Admin", name: "System Administrator", role: "platform-admin", organization: "Claimwise Platform", kind: "Platform", status: "Active" },
   { username: "lameck", name: "Lameck Administrator", role: "tenant-admin", organization: "Harbor Health Assurance", kind: "Insurer", status: "Active" },
   { username: "mercy.kamau", name: "Mercy Kamau", role: "insurer-claims-adjudicator", organization: "Harbor Health Assurance", kind: "Insurer", status: "Active" },
   { username: "peter.mutua", name: "Peter Mutua", role: "insurer-claims-approver", organization: "Harbor Health Assurance", kind: "Insurer", status: "Active" },
