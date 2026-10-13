@@ -135,6 +135,14 @@ create it and migrate it to head on first run. Each test runs in a transaction t
 back afterwards. Tokens are Keycloak-shaped and signed with a throwaway RSA key; the tests do
 not need Keycloak running.
 
+## Continuous integration
+
+[`.github/workflows/backend.yml`](.github/workflows/backend.yml) runs on pushes to `main`, on pull
+requests that touch `backend/`, and on demand. Against a PostgreSQL 16 service it runs
+`alembic upgrade head`, `alembic check`, `alembic downgrade base` then `upgrade head` again, and
+`pytest`. Keycloak isn't needed: the tests sign their own tokens. Deployment isn't configured yet
+(D11, D12).
+
 ## Inspect the database
 
 ```sh
