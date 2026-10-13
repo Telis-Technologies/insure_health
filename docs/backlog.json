@@ -93,8 +93,9 @@
       "D2"
     ],
     "completion_evidence": "FastAPI health route; PostgreSQL connection; first migration; secret-free setup instructions.",
-    "status": "PLANNED",
-    "assignment_status": "ASSIGNED_IN_THIS_PLAN"
+    "status": "IN_PROGRESS",
+    "assignment_status": "ASSIGNED_IN_THIS_PLAN",
+    "progress_note": "2026-10-13 Obunde: built and verified (GET /health, async PostgreSQL connection, 0001_baseline migration, secret-free README setup). Awaiting Tristan/Brian review. D11 has no answer, so scope is local development only."
   },
   {
     "id": "T05",
@@ -136,8 +137,9 @@
       "D2"
     ],
     "completion_evidence": "Tested users/organization delegation; no role-picker bypass; list and document access controls.",
-    "status": "PLANNED",
-    "assignment_status": "ASSIGNED_IN_THIS_PLAN"
+    "status": "IN_PROGRESS",
+    "assignment_status": "ASSIGNED_IN_THIS_PLAN",
+    "progress_note": "2026-10-13 Obunde: on branch feat/t06-keycloak-access. Keycloak token verification, 11 roles and 21 permissions seeded (0002_access, 0003_access_seed), scope helpers, admin API, audit. 33 tests and a live Keycloak check pass. Awaiting Tristan/Brian review, Lameck review of the realm file change, and team agreement on the role list."
   },
   {
     "id": "T07",
@@ -633,8 +635,9 @@
       "D6"
     ],
     "completion_evidence": "Approved checks/migrations/setup; no credentials committed; intended audience and chosen hosting verified.",
-    "status": "PLANNED",
-    "assignment_status": "ASSIGNED_IN_THIS_PLAN"
+    "status": "IN_PROGRESS",
+    "assignment_status": "ASSIGNED_IN_THIS_PLAN",
+    "progress_note": "2026-10-13 Obunde: backend CI added (.github/workflows/backend.yml: Postgres 16, migrations up/check/down/up, pytest). Deployment blocked on D11 and D12."
   },
   {
     "id": "T26",

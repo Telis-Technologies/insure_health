@@ -17,7 +17,8 @@
       { "name": "insurer-finance", "description": "Record insurer payments and reconcile settlements" },
       { "name": "insurer-policy-author", "description": "Draft policy and rule versions" },
       { "name": "insurer-policy-approver", "description": "Independently approve and publish policy and rule versions" },
-      { "name": "auditor", "description": "Read-only access to assigned audit records" }
+      { "name": "auditor", "description": "Read-only access to assigned audit records" },
+      { "name": "patient", "description": "Member access to own claims, coverage and payments" }
     ]
   },
   "groups": [
@@ -30,7 +31,8 @@
     { "name": "insurer-finance", "realmRoles": ["insurer-finance"] },
     { "name": "insurer-policy-authors", "realmRoles": ["insurer-policy-author"] },
     { "name": "insurer-policy-approvers", "realmRoles": ["insurer-policy-approver"] },
-    { "name": "auditors", "realmRoles": ["auditor"] }
+    { "name": "auditors", "realmRoles": ["auditor"] },
+    { "name": "patients", "realmRoles": ["patient"] }
   ],
   "clients": [
     {
@@ -48,7 +50,8 @@
       "defaultClientScopes": ["profile", "email", "roles", "claimwise-tenant-context"],
       "attributes": { "pkce.code.challenge.method": "S256", "post.logout.redirect.uris": "http://localhost:3000/*" },
       "protocolMappers": [
-        { "name": "Audience Claimwise API", "protocol": "openid-connect", "protocolMapper": "oidc-audience-mapper", "consentRequired": false, "config": { "included.client.audience": "claimwise-api", "id.token.claim": "false", "access.token.claim": "true", "included.custom.audience": "claimwise-api" } }
+        { "name": "Audience Claimwise API", "protocol": "openid-connect", "protocolMapper": "oidc-audience-mapper", "consentRequired": false, "config": { "id.token.claim": "false", "access.token.claim": "true", "included.custom.audience": "claimwise-api" } },
+        { "name": "Subject", "protocol": "openid-connect", "protocolMapper": "oidc-sub-mapper", "consentRequired": false, "config": { "id.token.claim": "true", "access.token.claim": "true", "introspection.token.claim": "true" } }
       ]
     }
   ],
