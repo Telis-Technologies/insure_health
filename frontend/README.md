@@ -1,5 +1,7 @@
 # Claimwise Health frontend
 
+> **MVP branch notice:** this legacy guide describes the full Keycloak/FastAPI application. For `feat/lean-health-claims-mvp`, use [MVP_README.md](MVP_README.md) instead. The investor prototype opens without login and runs Next.js plus a dedicated local PostgreSQL service.
+
 ## Local run
 
 Use Node 22.22.3 (`nvm use`), then `npm ci && npm run dev`. The frontend expects Keycloak at `http://localhost:8080/realms/claimwise`; start it from the repo root with `docker compose up -d keycloak`. Copy `.env.example` to `.env.local`, generate `AUTH_SECRET` using `openssl rand -base64 32`, and restart Next.js after changing auth settings.

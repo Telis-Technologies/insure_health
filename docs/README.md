@@ -21,3 +21,7 @@ Resolve Day 1 decision bookmarks before dependent implementation. D01 calendar/c
 - task_handoff.template.md: prompt for a bounded coding task.
 
 Important: Day 1-Day 7 are relative labels, not confirmed calendar dates. Proposed reviewers and technical details are reviewable assignments/specifications, not invented prior agreements. This package does not create a new patient, tariff or financial fixture beyond supplied Case 001.
+
+## MVP branch amendment (2026-10-14)
+
+Decision D16 records Lameck's branch-scoped direction for `feat/lean-health-claims-mvp`: login-free investor demo with Provider and Claims Reviewer personas only; Next.js UI and APIs plus a dedicated PostgreSQL service; no Keycloak, FastAPI, Finance walkthrough or provider onboarding. It supersedes the broad-stack statements above **for this branch only**. See [frontend/MVP_README.md](../frontend/MVP_README.md) for setup and prototype limitations. The tabs simulate personas and do not enforce access. Sample policy data is illustrative; publication remains disabled.
