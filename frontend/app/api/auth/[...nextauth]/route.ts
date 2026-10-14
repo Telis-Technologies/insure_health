@@ -1,3 +1,5 @@
-import { handlers } from "@/auth";
+import { NextResponse } from "next/server";
 
-export const { GET, POST } = handlers;
+const disabled = () => NextResponse.json({ error: "Authentication is not part of this local MVP." }, { status: 404 });
+export const GET = disabled;
+export const POST = disabled;
