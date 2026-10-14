@@ -1,12 +1,12 @@
-name: claimwise
+name: claimwise-mvp
 
 services:
   db:
     image: postgres:16
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:?set POSTGRES_DB in .env}
-      POSTGRES_USER: ${POSTGRES_USER:?set POSTGRES_USER in .env}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-claimwise_mvp}
+      POSTGRES_USER: ${POSTGRES_USER:-claimwise_mvp}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local_mvp_only_change_me}
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -15,37 +15,8 @@ services:
       timeout: 5s
       retries: 10
       start_period: 10s
-
-  backend:
-    build: ./backend
-    environment:
-      APP_ENV: ${APP_ENV:-development}
-      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
-    # Source is bind-mounted so code edits and new migration files are shared with the host.
-    volumes:
-      - ./backend:/app
-    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
     ports:
-      - "127.0.0.1:${API_PORT:-8000}:8000"
-    depends_on:
-      db:
-        condition: service_healthy
-
-  keycloak:
-    image: quay.io/keycloak/keycloak:26.8.0
-    environment:
-      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN_USERNAME:-admin}
-      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?set KEYCLOAK_ADMIN_PASSWORD in .env}
-      KC_HTTP_ENABLED: "true"
-      KC_HOSTNAME_STRICT: "false"
-    command: ["start-dev", "--import-realm"]
-    ports:
-      - "127.0.0.1:${KEYCLOAK_PORT:-8080}:8080"
-    volumes:
-      - keycloakdata:/opt/keycloak/data
-      - ./infra/keycloak:/opt/keycloak/data/import:ro
-      - ./infra/keycloak-theme/claimwise:/opt/keycloak/themes/claimwise:ro
+      - "127.0.0.1:${POSTGRES_PORT:-55432}:5432"
 
 volumes:
   pgdata:
-  keycloakdata:
