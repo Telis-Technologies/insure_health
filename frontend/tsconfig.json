@@ -30,5 +30,16 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    "auth.ts",
+    "types/next-auth.d.ts",
+    "components/access-management.tsx",
+    "components/app-shell.tsx",
+    "components/auth-providers.tsx",
+    "components/dashboard.tsx",
+    "components/login-button.tsx",
+    "components/tenant-admin.tsx",
+    "components/workspace-page.tsx"
+  ]
 }
