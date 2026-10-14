@@ -1,5 +1,5 @@
-import { OrganizationAdmin } from "@/components/tenant-admin";
+import { redirect } from "next/navigation";
 
 export default function OrganizationAdminPage() {
-  return <OrganizationAdmin />;
+  redirect("/");
 }

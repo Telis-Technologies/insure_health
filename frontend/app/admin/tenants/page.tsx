@@ -1,5 +1,5 @@
-import { TenantOnboarding } from "@/components/tenant-admin";
+import { redirect } from "next/navigation";
 
 export default function TenantOnboardingPage() {
-  return <TenantOnboarding />;
+  redirect("/");
 }
