@@ -1,8 +1,5 @@
-import { WorkspacePage } from "@/components/workspace-page";
+import { redirect } from "next/navigation";
 
-export const instant = false;
-
-export default async function Page({ params }: { params: Promise<{ slug: string[] }> }) {
-  const { slug } = await params;
-  return <WorkspacePage slug={slug} />;
+export default function Page() {
+  redirect("/");
 }

@@ -1,10 +1,5 @@
-import { LoginButton } from "@/components/login-button";
-import Link from "next/link";
+import { redirect } from "next/navigation";
 
-export const instant = false;
-
-export default async function LoginPage({ searchParams }: { searchParams: Promise<{ callbackUrl?: string; error?: string; logged_out?: string }> }) {
-  const { callbackUrl, error, logged_out } = await searchParams;
-  const configured = Boolean(process.env.AUTH_KEYCLOAK_ISSUER && process.env.AUTH_KEYCLOAK_ID);
-  return <main className="sign-in-page"><section className="sign-in-story"><Link className="landing-brand" href="/"><span className="brand-mark">C</span><span>claimwise<span className="landing-brand-dot">.</span></span></Link><div><span className="landing-eyebrow">HEALTH CLAIMS, CONNECTED</span><h1>One workspace.<br />The right view for <em>your role.</em></h1><p>Providers, reviewers and finance teams work from the same claim journey—with access shaped to their organization.</p><div className="sign-in-story-line"><span>01</span> Provider submission <span>→</span> Review <span>→</span> Settlement</div></div><small>© Claimwise Health</small></section><section className="sign-in-panel"><div className="sign-in-form"><Link className="sign-in-back" href="/">← Back to overview</Link><span className="sign-in-kicker">SECURE WORKSPACE ACCESS</span><h2>Welcome back</h2><p>Sign in with your assigned organization account to continue.</p>{logged_out && <div className="sign-in-success" role="status">You have signed out. Choose an account to sign in again.</div>}{error && <div className="auth-setup-warning" role="alert"><strong>Sign-in was not completed.</strong><span>Check your account details and retry. If this continues, contact your administrator.</span></div>}{configured ? <LoginButton callbackUrl={callbackUrl || "/workspace"} /> : <div className="auth-setup-warning"><strong>Sign-in is unavailable.</strong><span>The identity service is not configured. Contact your administrator.</span></div>}<div className="sign-in-divider"><span>Protected access</span></div><small>Only assigned users with an active organization and application role can enter the workspace.</small></div></section></main>;
+export default function LoginPage() {
+  redirect("/");
 }
