@@ -193,5 +193,18 @@
     "answer": "Lameck approved on 2026-10-10 that every policy/rule publication requires an independent insurer-authorized approver distinct from the author. TPA users may publish only under explicit, scoped insurer delegation. Accountable insurer business-owner and drafter job titles, delegation scope detail, and any additional compliance sign-off remain open.",
     "approved_by": "Lameck (rule publication guardrails)",
     "recorded_at": "2026-10-10"
+  },
+  {
+    "id": "D16",
+    "status": "CONFIRMED",
+    "subject": "Investor MVP branch runtime and walkthrough",
+    "proposed_coordinators": "Lameck; implementation on feat/lean-health-claims-mvp",
+    "revisit_by": "Before the MVP is exposed beyond local investor-demo use",
+    "question": "For the two-minute pitch, choose runtime, personas, persistence, scan path, and onboarding/policy-publication scope.",
+    "blocks": "Implementation scope and local startup path for the investor MVP branch only",
+    "safe_behavior": "No login and no real access control; persona tabs are simulation only. Fictional data only. Keep the application on localhost. Do not enable policy publication or imply OCR/signature verification is authoritative.",
+    "answer": "Lameck approved on 2026-10-14: optimize for a two-minute investor walkthrough with Provider billing and Claims reviewer as the only demo personas; no login, Finance demo, or provider/insurer onboarding. Use Next.js for UI and server APIs with PostgreSQL persistence; do not start Keycloak or FastAPI on this branch. Use an instant preloaded reference scan for the pitch and local PDF text extraction/OCR with human confirmation for real uploaded PDFs. Keep versioned sample policy drafts and explainable version/evidence-linked checks; publication remains disabled. Upload PDF only, maximum 20 MB, to a private local app volume. This is a branch-local prototype decision, not a change to production architecture.",
+    "approved_by": "Lameck",
+    "recorded_at": "2026-10-14"
   }
 ]
