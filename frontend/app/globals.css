@@ -692,3 +692,37 @@ td { color: #344b3e; }
 .access-invite .button { margin-top: 7px; }
 @media (max-width: 1000px) { .access-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); } .access-user-role { min-width: 130px; } }
 @media (max-width: 600px) { .access-heading { align-items: start; flex-direction: column; } .access-summary { gap: 9px; } .access-summary article { padding: 14px; } .access-toolbar { flex-wrap: wrap; } .access-toolbar label { width: 100%; } .access-user-role { display: none; } .access-user-primary { min-width: 0; } .access-pagination { align-items: start; flex-direction: column; } }
+
+/* Shared entry visual across the public landing and sign-in experiences. */
+.landing-hero {
+  position: relative;
+  isolation: isolate;
+  background-image:
+    linear-gradient(90deg, rgb(246 248 243 / 96%) 0%, rgb(246 248 243 / 88%) 43%, rgb(246 248 243 / 60%) 100%),
+    url('/images/claimwise-health-entry.png');
+  background-position: center, center 48%;
+  background-size: cover;
+}
+
+.sign-in-story {
+  background-image:
+    linear-gradient(135deg, rgb(14 53 43 / 82%), rgb(18 75 54 / 74%) 52%, rgb(14 53 43 / 80%)),
+    url('/images/claimwise-health-entry.png');
+  background-position: center, 43% center;
+  background-size: cover;
+}
+
+@media (max-width: 900px) {
+  .landing-hero {
+    background-image:
+      linear-gradient(180deg, rgb(246 248 243 / 92%), rgb(246 248 243 / 78%)),
+      url('/images/claimwise-health-entry.png');
+    background-position: center, 48% center;
+  }
+}
+
+@media (max-width: 600px) {
+  .sign-in-story {
+    background-position: center, 42% center;
+  }
+}
