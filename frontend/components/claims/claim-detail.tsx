@@ -19,7 +19,7 @@ export function ClaimDetail({ id }: { id: string }) {
           <div>
             <div className="eyebrow">CLAIMS / NOT FOUND</div>
             <h1>Claim Not Found</h1>
-            <p className="page-subtitle">The requested claim reference "{id}" does not exist in the register.</p>
+            <p className="page-subtitle">The requested claim reference &quot;{id}&quot; does not exist in the register.</p>
           </div>
           <Link className="button button-outline" href="/claims">
             ← Back to claims
@@ -336,7 +336,7 @@ export function ClaimDetail({ id }: { id: string }) {
               <strong>Patient:</strong> Daniel Mwangi | <strong>Encounter:</strong> ENC-RMC-2026-0922
             </p>
             <div style={{ borderTop: "1px dashed #d0ded3", paddingTop: "10px", fontSize: "12px", color: "#77857e" }}>
-              <em>Itemized bill matches submitted 6 lines totaling KES 36,100. Stored in synthetic demonstration state.</em>
+              <em>Reference bill: 6 lines totaling KES 36,100. This record is for illustration and is not a saved claim.</em>
             </div>
           </div>
           <div className="form-actions" style={{ justifyContent: "flex-end" }}>

@@ -247,21 +247,8 @@ export function ClaimIntake() {
       );
       router.push("/claims");
     } catch (err) {
-      // Graceful demonstration fallback when backend API is pending
       if (err instanceof ApiUnavailableError || (err instanceof Error && err.name === "ApiUnavailableError")) {
-        const feedbackMsg = isDraft
-          ? `[PREVIEW MODE] Draft saved locally: ${billLines.length} lines totaling ${kes(totalBilled)}.`
-          : `[PREVIEW MODE] Claim submitted: Case 001 preserved as Version 1 (${kes(totalBilled)}). Ready for Reviewer Workbench.`;
-
-        window.dispatchEvent(new CustomEvent("claimwise:feedback", { detail: feedbackMsg }));
-        setSubmissionFeedback(feedbackMsg);
-
-        if (!isDraft) {
-          // In preview mode, redirect to Reference Case 001 inspection after brief pause
-          setTimeout(() => {
-            router.push("/claims/reference-case-001");
-          }, 1200);
-        }
+        setSubmissionFeedback("Claim not saved: the claims service is unavailable. Your entered details remain on this page; try again when the service is connected.");
       } else {
         setSubmissionFeedback(err instanceof Error ? err.message : "Failed to submit claim.");
       }
@@ -633,7 +620,7 @@ export function ClaimIntake() {
               </div>
             ) : (
               <p className="form-helper">
-                Attach original scanned hospital bill. Documents are retained in browser session during preview mode.
+                Attach the original scanned hospital bill. The file is sent only when the claims service is connected and accepts the submission.
               </p>
             )}
           </section>

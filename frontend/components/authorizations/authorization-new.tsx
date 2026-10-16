@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useMemo, useState } from "react";
-import { demoMembers, demoProviders, kes } from "@/lib/demo-data";
+import { demoMembers, demoProviders } from "@/lib/demo-data";
 import { apiRequest, ApiUnavailableError } from "@/lib/api-client";
 
 export function AuthorizationNew() {
@@ -86,10 +86,7 @@ export function AuthorizationNew() {
       router.push("/authorizations");
     } catch (err) {
       if (err instanceof ApiUnavailableError || (err instanceof Error && err.name === "ApiUnavailableError")) {
-        const msg = `[PREVIEW MODE] Preauthorization AUTH-HHA-001 recorded. Ceiling capped at ${kes(Number(requestedCeiling))} for ${serviceDate}.`;
-        window.dispatchEvent(new CustomEvent("claimwise:feedback", { detail: msg }));
-        setFeedback(msg);
-        setTimeout(() => router.push("/authorizations"), 1200);
+        setFeedback("Request not saved: the authorization service is unavailable. Your entered details remain on this page; try again when the service is connected.");
       } else {
         setFeedback(err instanceof Error ? err.message : "Failed to submit authorization.");
       }
@@ -265,7 +262,7 @@ export function AuthorizationNew() {
             </label>
 
             <div className="form-field" style={{ marginTop: "14px" }}>
-              <span>Doctor's Prescription or Referral Letter (Optional attachment)</span>
+              <span>Doctor&apos;s Prescription or Referral Letter (Optional attachment)</span>
               <input
                 type="file"
                 accept=".pdf,image/png,image/jpeg"
