@@ -2,11 +2,13 @@
 
 ## Local run
 
-Use Node 22.22.3 (`nvm use`), then `npm ci && npm run dev`. The frontend expects Keycloak at `http://localhost:8080/realms/claimwise`; start it from the repo root with `docker compose up -d keycloak`. Copy `.env.example` to `.env.local`, generate `AUTH_SECRET` using `openssl rand -base64 32`, and restart Next.js after changing auth settings.
+Use Node 22.22.3 (`nvm use`), then `npm ci && npm run dev`. The frontend expects Keycloak at `http://localhost:8080/realms/claimwise`; start it from the repo root with `docker compose up -d keycloak`. Copy `.env.example` to `.env.local`, generate `AUTH_SECRET` using `openssl rand -base64 32`, and restart Next.js after changing auth settings. Use port 3000 or explicitly set `PORT=3001`; the local Keycloak client allows both. After an existing Keycloak volume is upgraded, rerun the repair script so its redirect URIs and branded login theme are updated.
 
 Auth.js (`next-auth@5` beta) performs the Keycloak OpenID Connect authorization-code flow with PKCE. Keycloak owns login, account recovery and role assignment. The frontend derives navigation and route visibility from Keycloak realm roles; this is only UI access shaping. Any future data/API endpoint must verify the Keycloak access token, authorize the capability, and enforce the tenant and organization membership on the server. Never treat client-side hidden navigation or `tenant_ids` as sufficient security.
 
 The local realm configuration is in `../infra/keycloak/claimwise-realm.json`. For an existing local Keycloak volume, run `node --env-file=.env --env-file=.env.demo scripts/repair-keycloak-dev.mjs` from the repo root. The script repairs the OIDC scopes, registers admin-managed tenant attributes, and creates role-specific local users. It is loopback/development-only. The ignored root `.env.demo` contains the password for newly created users; it is not the Keycloak Admin Console password (that is in the ignored root `.env`). The script does not reset existing user passwords. Do not reuse either password outside this local environment.
+
+The public landing page is `/`. `/login` is a Claimwise entry screen; credentials are entered on the branded Claimwise Health identity form served by Keycloak. Sign-out closes the application session and then the Keycloak SSO session, so the next sign-in can use a different account. Keycloak may ask to confirm sign-out before returning to the app. The user menu in the sidebar or top bar shows the current name, role and organization.
 
 Use these local Keycloak accounts to inspect separate workspaces:
 
@@ -25,9 +27,9 @@ Use these local Keycloak accounts to inspect separate workspaces:
 
 New accounts use `CLAIMWISE_DEMO_PASSWORD` from the ignored root `.env.demo`; Lameck keeps his existing password. Older `*.demo` accounts remain in Keycloak for compatibility but are not the primary walkthrough accounts. The organization administrator does not inherit provider, reviewer, finance or rule-publication rights. For a fresh clone, set a unique 16+ character local password before running the script.
 
-Verify the sign-in chain from the repo root with `node --env-file=.env.demo scripts/smoke-keycloak-login.mjs`. Set `CLAIMWISE_DEMO_USERNAME` and `CLAIMWISE_EXPECTED_ROLE` to test a different persona. The smoke test checks the authorization redirect, Keycloak login, Auth.js session, tenant claim, and role-based route denial.
+Verify the sign-in chain from the repo root with `node --env-file=.env.demo scripts/smoke-keycloak-login.mjs`. Set `CLAIMWISE_DEMO_USERNAME` and `CLAIMWISE_EXPECTED_ROLE` to test a different persona. The smoke test checks the authorization redirect, Keycloak login, Auth.js session, tenant claim, role-based route denial, application sign-out and local post-logout redirects. For an account-switch check, sign out in a browser, confirm the Keycloak logout screen, then sign in with a different account; a credential form should appear instead of silently restoring the first user.
 
-`/admin/tenants` is the platform onboarding interface; `/organization` is insurer-tenant administration. They validate and explain the expected workflow but do not create persistent tenants or invite users yet because the access-management API and database services are still placeholders.
+`/admin/tenants` is the platform onboarding interface; `/organization` is insurer-tenant administration. `/access` is a paginated, searchable local reference roster grouped by organization and role, with a permissions matrix and user-detail actions. It is not synchronized with Keycloak: invitation, role change, suspension and password-reset controls explicitly report that no change was made. These actions need a server-side access-management API with tenant-scoped authorization and audit logging; do not wire a Keycloak admin credential into browser code. The tenant and onboarding forms likewise do not persist records yet.
 
 ## Local reference records
 

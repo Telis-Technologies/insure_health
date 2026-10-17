@@ -43,9 +43,21 @@ for (const wanted of realmConfig.clientScopes) {
 const scopes = await admin("GET", "client-scopes");
 const client = (await admin("GET", "clients?clientId=claimwise-web"))[0];
 if (!client) throw new Error("claimwise-web client is absent from the imported realm.");
-if (client.attributes?.["post.logout.redirect.uris"] !== "http://localhost:3000/*") {
-  await admin("PUT", `clients/${client.id}`, { ...client, attributes: { ...client.attributes, "post.logout.redirect.uris": "http://localhost:3000/*" } });
-  console.log("Configured the local post-logout redirect URI.");
+const wantedRedirects = realmConfig.clients.find((entry) => entry.clientId === "claimwise-web");
+if (!wantedRedirects) throw new Error("claimwise-web is absent from the realm configuration.");
+const desiredClient = {
+  ...client,
+  redirectUris: wantedRedirects.redirectUris,
+  webOrigins: wantedRedirects.webOrigins,
+  attributes: { ...client.attributes, "post.logout.redirect.uris": wantedRedirects.attributes["post.logout.redirect.uris"] },
+};
+if (
+  !wantedRedirects.redirectUris.every((uri) => client.redirectUris?.includes(uri)) ||
+  !wantedRedirects.webOrigins.every((origin) => client.webOrigins?.includes(origin)) ||
+  client.attributes?.["post.logout.redirect.uris"] !== wantedRedirects.attributes["post.logout.redirect.uris"]
+) {
+  await admin("PUT", `clients/${client.id}`, desiredClient);
+  console.log("Configured the local sign-in and post-logout redirect URIs.");
 }
 const realm = await admin("GET", "");
 if (realm.loginTheme !== "claimwise") {
