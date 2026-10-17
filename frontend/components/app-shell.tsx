@@ -87,7 +87,7 @@ export function AppShell({ children, identityIssuer, identityClientId }: { child
       </aside>
       <div className="main-column"><header className="topbar"><div className="breadcrumbs"><span>Claimwise Health</span><span className="crumb-sep">/</span><strong>{displayRole}</strong></div><div className="topbar-actions"><span className="environment-pill"><i /> {org}</span><button className="icon-button" type="button" aria-label="Notifications" onClick={() => emitFeedback("No notifications are available for this account yet.")}>♧</button><button ref={topProfileRef} className="avatar-button" type="button" aria-label={`Signed in as ${user?.name ?? user?.email}. Open account menu`} aria-expanded={profileOpen === "top"} title={`${user?.name ?? user?.email} · ${displayRole}`} onClick={() => { setProfileOpen((open) => open === "top" ? null : "top"); setOrgOpen(false); }}>{initials}</button></div></header>
         {profileOpen === "top" ? <div className="top-account-menu">{profileMenu}</div> : null}
-        <main className="page-content">{children}</main><footer className="page-footer"><span>CLAIMWISE HEALTH</span><span>Local reference workspace · Claims are not saved</span></footer>
+         <main className="page-content">{children}</main>
       </div>
       {notice ? <div className="app-toast" role="status" aria-live="polite"><span>i</span>{notice}<button type="button" aria-label="Dismiss message" onClick={() => setNotice("")}>×</button></div> : null}
     </div>
